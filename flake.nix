@@ -13,10 +13,8 @@
 
   outputs = { self, ... } @ inputs:
   {
-    nixosConfigurations.iolcus = inputs.nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [ ./iolcus.nix ];
-      specialArgs = { inherit self; };
-    };
+    lib = import ./lib { inherit self; };
+
+    nixosConfigurations = self.lib.import ./nixos/systems;
   };
 }

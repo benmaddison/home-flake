@@ -121,7 +121,7 @@
     useGlobalPkgs = true;
     useUserPackages = true;
     extraSpecialArgs = { inherit (self.inputs.impermanence.nixosModules.home-manager) impermanence; };
-    users.benm = import ./benm.nix;
+    users.benm = import ./../../home-manager/users/benm.nix;
   };
 
   services.xserver = {
