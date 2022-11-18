@@ -172,8 +172,9 @@
     registry = {
       nixpkgs.flake = self.inputs.nixpkgs;
       system.to = {
-        type = "path";
-        path = "${config.users.users.benm.home}/documents/repos/home-flake";
+        type = "github";
+        owner = "benmaddison";
+        repo = "home-flake";
       };
     };
   };
