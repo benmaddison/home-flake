@@ -78,6 +78,7 @@
 
   powerManagement.cpuFreqGovernor = "powersave";
   hardware.cpu.intel.updateMicrocode = config.hardware.enableRedistributableFirmware;
+  services.hardware.bolt.enable = true;
 
   systemd.sleep.extraConfig = ''
     AllowSuspend=no
