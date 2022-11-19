@@ -158,6 +158,7 @@
   environment.persistence."/data/system" = {
     directories = [
       "/etc/NetworkManager/system-connections"
+      "/var/lib/boltd"
       "/var/log"
     ];
     files = [
