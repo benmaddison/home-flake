@@ -1,4 +1,4 @@
-{ self, config, pkgs, modulesPath, ... }:
+{ self, config, pkgs, lib, modulesPath, ... }:
 
 {
   imports = with self.inputs; [
@@ -166,17 +166,30 @@
     ];
   };
 
+  system.extraSystemBuilderCmds = ''
+    mkdir -p $out/source/inputs
+    ln -s ${self} $out/source/self
+    ${lib.concatStrings (
+      lib.mapAttrsToList (name: source: ''
+        ln -s ${source} $out/source/inputs/${name}
+      '')
+      self.inputs
+    )}
+  '';
+
   nix = {
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
     trustedUsers = [ "@wheel" ];
-    registry = {
-      nixpkgs.flake = self.inputs.nixpkgs;
-      system.to = {
-        type = "github";
-        owner = "benmaddison";
-        repo = "home-flake";
+    nixPath = [ "nixpkgs=/run/current-system/source/inputs/nixpkgs" ];
+    registry =
+      lib.mapAttrs (name: flake: { inherit flake; }) self.inputs //
+      {
+        system.to = {
+          type = "github";
+          owner = "benmaddison";
+          repo = "home-flake";
       };
     };
   };
