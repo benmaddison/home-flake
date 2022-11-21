@@ -85,7 +85,7 @@ in {
       };
       font = {
         normal.family = "SauceCodePro Nerd Font";
-        size = 8;
+        size = 12;
       };
     };
   };
@@ -505,7 +505,101 @@ in {
         colors = {
           background = colors.black;
         };
+        defaultWorkspace = "workspace number 1";
+        floating.criteria = [];
         gaps.inner = 6;
+        keybindings = let
+          cfg = config.xsession.windowManager.i3.config;
+          mod = cfg.modifier;
+          alt = "Mod1";
+        in {
+          "${mod}+Return" = "exec ${cfg.terminal}";
+          # TODO: "${mod}+Shift+Return" -> launch browser
+          "${mod}+space" = "exec ${cfg.menu}";
+          # TODO: "${mod}+Shift+space" -> cmd launcher
+          # TODO: "${mod}+Ctrl+space" -> window launcher
+          # TODO: "${mod}+${alt}+space" -> file launcher
+          # TODO: "${mod}+Shift+question" -> help pop-up
+          # TODO: "${mod}+equal" -> calulator
+          # TODO: "${mod}+z" -> fuzzy finder
+          "${mod}+q" = "[con_id=\"focused\"] kill";
+
+          "${mod}+h" = "focus left";
+          "${mod}+j" = "focus down";
+          "${mod}+k" = "focus up";
+          "${mod}+l" = "focus right";
+
+          "${mod}+Shift+h" = "move left";
+          "${mod}+Shift+j" = "move down";
+          "${mod}+Shift+k" = "move up";
+          "${mod}+Shift+l" = "move right";
+
+          "${mod}+Ctrl+h" = "move workspace to output left";
+          "${mod}+Ctrl+j" = "move workspace to output down";
+          "${mod}+Ctrl+k" = "move workspace to output up";
+          "${mod}+Ctrl+l" = "move workspace to output right";
+
+          "${mod}+1" = "workspace number 1";
+          "${mod}+2" = "workspace number 2";
+          "${mod}+3" = "workspace number 3";
+          "${mod}+4" = "workspace number 4";
+          "${mod}+5" = "workspace number 5";
+          "${mod}+6" = "workspace number 6";
+          "${mod}+7" = "workspace number 7";
+          "${mod}+8" = "workspace number 8";
+          "${mod}+9" = "workspace number 9";
+          "${mod}+0" = "workspace number 10";
+          # TODO: "${mod}+Ctrl+[0..9] -> workspaces 11 - 20
+
+          "${mod}+Shift+1" = "move container to workspace number 1";
+          "${mod}+Shift+2" = "move container to workspace number 2";
+          "${mod}+Shift+3" = "move container to workspace number 3";
+          "${mod}+Shift+4" = "move container to workspace number 4";
+          "${mod}+Shift+5" = "move container to workspace number 5";
+          "${mod}+Shift+6" = "move container to workspace number 6";
+          "${mod}+Shift+7" = "move container to workspace number 7";
+          "${mod}+Shift+8" = "move container to workspace number 8";
+          "${mod}+Shift+9" = "move container to workspace number 9";
+          "${mod}+Shift+0" = "move container to workspace number 10";
+          # TODO: "${mod}+Shift+Ctrl+[0..9] -> workspaces 11 - 20
+
+          "${mod}+${alt}+1" = "move container to workspace number 1; workspace number 1";
+          "${mod}+${alt}+2" = "move container to workspace number 2; workspace number 2";
+          "${mod}+${alt}+3" = "move container to workspace number 3; workspace number 3";
+          "${mod}+${alt}+4" = "move container to workspace number 4; workspace number 4";
+          "${mod}+${alt}+5" = "move container to workspace number 5; workspace number 5";
+          "${mod}+${alt}+6" = "move container to workspace number 6; workspace number 6";
+          "${mod}+${alt}+7" = "move container to workspace number 7; workspace number 7";
+          "${mod}+${alt}+8" = "move container to workspace number 8; workspace number 8";
+          "${mod}+${alt}+9" = "move container to workspace number 9; workspace number 9";
+          "${mod}+${alt}+0" = "move container to workspace number 10; workspace number 10";
+          # TODO: "${mod}+Shift+Ctrl+[0..9] -> workspaces 11 - 20
+
+          "${mod}+Tab"       = "workspace next";
+          "${mod}+Shift+Tab" = "workspace previous";
+
+          # TODO: scratchpad move/show
+
+          "${mod}+backslash" = "[urgent=oldest] focus";
+
+          "${mod}+BackSpace" = "split toggle";
+          "${mod}+f" = "fullscreen toggle";
+          "${mod}+t" = "layout toggle tabbed splith splitv";
+          "${mod}+Shift+f" = "floating toggle";
+          "${mod}+Shift+t" = "focus mode_toggle";
+
+          "${mod}+Escape" = "exec systemctl start physlock.service";
+          "${mod}+Shift+c" = "reload";
+          "${mod}+Shift+r" = "restart";
+          "${mod}+Shift+q" = "exec i3-msg exit";
+
+          # TODO: "${mod}+grave -> show tray
+          # TODO: "${mod}+Shift+v -> vpn toggle
+          # TODO: "${mod}+n -> notifications
+          # TODO: "${mod}+Shift+n -> file manager
+
+          "${mod}+r" = "mode resize";
+        };
         modifier = "Mod4";
         terminal = "${pkgs.alacritty}/bin/alacritty";
       };
