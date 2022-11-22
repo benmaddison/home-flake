@@ -147,6 +147,7 @@
   hardware.pulseaudio.enable = true;
 
   environment.systemPackages = with pkgs; [
+    pciutils
     sedutil
     wget
   ];
