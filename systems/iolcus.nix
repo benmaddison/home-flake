@@ -19,23 +19,9 @@ in {
   console = {
     packages = with pkgs; [ terminus_font powerline-fonts ];
     font = "ter-powerline-v20n";
-    colors = [
-      "2e3440" # black
-      "bf616a" # red
-      "a3be8c" # green
-      "d08770" # orange
-      "5e81ac" # blue
-      "b48ead" # magenta
-      "88c0d0" # cyan
-      "d8dee9" # light grey
-      "4c566a" # dark grey
-      "bf616a" # light red
-      "a3be8c" # light green
-      "ebcb8b" # yellow
-      "81a1c1" # light blue
-      "b48ead" # light purple
-      "8fbcbb" # teal
-      "eceff4" # white
+    colors = with self.lib.colors "nord" "hex"; [
+      black red green orange blue magenta cyan light-grey
+      dark-grey light-red light-green yellow light-blue light-purple teal white
     ];
   };
   services.kmscon = {
