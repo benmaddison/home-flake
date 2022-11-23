@@ -1,6 +1,8 @@
 { self, config, pkgs, lib, modulesPath, ... }:
 
-{
+let
+  unfreePkgs = [];
+in {
   imports = with self.inputs; [
     (modulesPath + "/installer/scan/not-detected.nix")
     impermanence.nixosModules.impermanence
@@ -131,20 +133,14 @@
     layout = "us";
     libinput.enable = true;
     displayManager.sx.enable = true;
+    # TODO:
+    #xkbOptions = {};
   };
-
-  # Configure keymap in X11
-  # services.xserver.layout = "us";
-  # services.xserver.xkbOptions = {
-  #   "eurosign:e";
-  #   "caps:escape" # map caps to escape.
-  # };
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;
+
+  services.autorandr.enable = true;
 
   environment.systemPackages = with pkgs; [
     pciutils
@@ -190,6 +186,7 @@
       };
     };
   };
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
