@@ -15,6 +15,8 @@
   {
     lib = import ./lib { inherit self; };
 
-    nixosConfigurations = self.lib.import ./nixos/systems;
+    nixosConfigurations = self.lib.import ./systems;
+
+    nixosModules = self.lib.import ./modules;
   };
 }

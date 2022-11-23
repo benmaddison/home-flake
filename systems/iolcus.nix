@@ -6,7 +6,6 @@ in {
   imports = with self.inputs; [
     (modulesPath + "/installer/scan/not-detected.nix")
     impermanence.nixosModules.impermanence
-    home-manager.nixosModules.home-manager
   ];
 
   boot.loader.systemd-boot.enable = true;
@@ -111,21 +110,9 @@ in {
 
   time.timeZone = "Africa/Johannesburg";
 
-  users.mutableUsers = false;
-  users.users.benm = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
-    initialHashedPassword = "$6$Fjct9SMOV8uWIMrU$vTqfSYHFk/dgAyy0UTq/notTPcfmZiGpW9t3lVFmbB8aZnkDu5/0kJs8W5a3Uc1Edzh0mReXgk/iKdR3mPm8Z1";
-  };
+  local.users.benm.hashedPassword = "$6$Fjct9SMOV8uWIMrU$vTqfSYHFk/dgAyy0UTq/notTPcfmZiGpW9t3lVFmbB8aZnkDu5/0kJs8W5a3Uc1Edzh0mReXgk/iKdR3mPm8Z1";
 
   services.gnome.gnome-keyring.enable = true;
-
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    extraSpecialArgs = { inherit (self.inputs.impermanence.nixosModules.home-manager) impermanence; };
-    users.benm = import ./../../home-manager/users/benm.nix;
-  };
 
   services.xserver = {
     enable = true;
@@ -188,14 +175,6 @@ in {
   };
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-  
   programs.fuse.userAllowOther = true;
 
   programs.neovim = {
@@ -205,21 +184,6 @@ in {
     vimAlias = true;
   };
 
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.05"; # Did you read the comment?
+  system.stateVersion = "22.05";
 
 }

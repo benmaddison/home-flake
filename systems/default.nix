@@ -8,9 +8,12 @@ let
 
   makeSystems = let
     lib = self.inputs.nixpkgs.lib;
+    modules = name:
+      [ (./. + "/${name}.nix") ]
+      ++ builtins.attrValues self.nixosModules;
     makeSystem = name: sys: lib.nixosSystem {
       inherit (sys) system;
-      modules = [ (./. + "/${name}.nix") ];
+      modules = modules name;
       specialArgs = { inherit self; };
     };
   in systems: builtins.mapAttrs makeSystem systems;
