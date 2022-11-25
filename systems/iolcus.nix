@@ -1,7 +1,7 @@
 { self, config, pkgs, lib, modulesPath, ... }:
 
 let
-  unfreePkgs = [];
+  unfreePkgs = [ "zoom" ];
 in {
   imports = with self.inputs; [
     (modulesPath + "/installer/scan/not-detected.nix")

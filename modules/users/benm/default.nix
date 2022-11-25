@@ -26,6 +26,7 @@ in {
       ".config/keybase"
       ".local/share"
       ".mozilla/firefox/default"
+      ".zoom"
     ];
   };
 
@@ -37,6 +38,7 @@ in {
     nix-diff
     ripgrep
     w3m
+    zoom-us
   ];
 
   fonts.fontconfig.enable = true;
