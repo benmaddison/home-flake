@@ -40,7 +40,7 @@
             vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
             vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
             vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-            vim.keymap.set('n', '<C-K>', vim.lsp.buf.signature_help, opts)
+            vim.keymap.set('n', '<M-k>', vim.lsp.buf.signature_help, opts)
           end
           require('lspconfig').rnix.setup {
             cmd = { "${pkgs.rnix-lsp}/bin/rnix-lsp" },
@@ -50,6 +50,12 @@
           EOF
         '';
       }
+      cmp-buffer
+      cmp-path
+      cmp-cmdline
+      luasnip
+      cmp_luasnip
+      lspkind-nvim
       {
         plugin = nvim-cmp;
         config = ''
@@ -79,8 +85,28 @@
                 end
               end, { 'i', 's' }),
             }),
+            snippet = {
+              expand = function(args)
+                require('luasnip').lsp_expand(args.body)
+              end,
+            },
             sources = {
               { name = 'nvim_lsp' },
+              { name = 'luasnip' },
+              { name = 'path' },
+              { name = 'buffer' },
+            },
+            formatting = {
+              format = require('lspkind').cmp_format({
+                mode = "symbol_text",
+                menu = ({
+                  nvim_lsp = "[lsp]",
+                  luasnip = "[luasnip]",
+                  path = "[path]",
+                  buffer = "[buffer]",
+                  cmdline = "[cmd]",
+                }),
+              }),
             },
           }
           EOF
