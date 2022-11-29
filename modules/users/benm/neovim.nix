@@ -118,6 +118,25 @@
           colorscheme nord
         '';
       }
+      telescope-fzf-native-nvim
+      {
+        plugin = telescope-nvim;
+        config = ''
+          lua <<EOF
+          local telescope = require('telescope')
+          telescope.setup{}
+          telescope.load_extension('fzf')
+          local builtin = require('telescope.builtin')
+          vim.keymap.set('n', '<leader>pp', builtin.find_files, {})
+          vim.keymap.set('n', '<leader>pf', builtin.live_grep, {})
+          vim.keymap.set('n', '<leader>pb', builtin.buffers, {})
+          vim.keymap.set('n', '<leader>ph', builtin.help_tags, {})
+          vim.keymap.set('n', '<leader>pF', builtin.filetypes, {})
+          vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
+          vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
+          EOF
+        '';
+      }
     ];
     extraConfig = ''
       set nocompatible
@@ -150,7 +169,6 @@
 
       nnoremap [g vim.diagnostic.goto_prev
       nnoremap ]g vim.diagnostic.goto_next
-      nnoremap <Leader>g vim.diagnostic.open_float
     '';
   };
 }
