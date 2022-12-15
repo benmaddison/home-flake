@@ -7,6 +7,7 @@
     vimAlias = true;
     vimdiffAlias = true;
     plugins = with pkgs.vimPlugins; [
+
       {
         plugin = (nvim-treesitter.withPlugins (_: pkgs.tree-sitter.allGrammars));
         config = ''
@@ -19,19 +20,13 @@
           EOF
         '';
       }
-      {
-        plugin = cmp-nvim-lsp;
-        config = ''
-          lua <<EOF
-            capabilities = vim.lsp.protocol.make_client_capabilities()
-            capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
-          EOF
-        '';
-      }
+
+      cmp-nvim-lsp
       {
         plugin = nvim-lspconfig;
         config = ''
           lua <<EOF
+          local capabilities = require('cmp_nvim_lsp').default_capabilities()
           local on_attach = function(client, bufnr)
             local opts = { noremap = true, silent = true, buffer = bufnr }
             vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
@@ -50,6 +45,7 @@
           EOF
         '';
       }
+
       cmp-buffer
       cmp-path
       cmp-cmdline
@@ -112,12 +108,14 @@
           EOF
         '';
       }
+
       {
         plugin = nord-vim;
         config = ''
           colorscheme nord
         '';
       }
+
       telescope-fzf-native-nvim
       {
         plugin = telescope-nvim;
@@ -138,6 +136,7 @@
         '';
       }
     ];
+
     extraConfig = ''
       set nocompatible
       set ignorecase

@@ -1,10 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
-    impermanence = {
-      url = "github:nix-community/impermanence";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    impermanence.url = "github:nix-community/impermanence";
     home-manager = {
       url = "github:nix-community/home-manager/release-22.11";
       inputs.nixpkgs.follows = "nixpkgs";

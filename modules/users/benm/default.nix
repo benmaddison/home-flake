@@ -100,10 +100,10 @@ in {
             background = cyan;
             foreground = black;
           };
-          bar = {
-            background = cyan;
-            foreground = black;
-          };
+        };
+        footer_bar = {
+          background = cyan;
+          foreground = black;
         };
         normal = {
           inherit black red green yellow blue magenta cyan white;
@@ -119,7 +119,7 @@ in {
       };
       font = {
         normal.family = "SauceCodePro Nerd Font Mono";
-        size = 12;
+        size = 10;
       };
     };
   };
