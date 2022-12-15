@@ -100,6 +100,8 @@ in {
 
   services.gnome.gnome-keyring.enable = true;
 
+  services.dbus.packages = [ pkgs.gcr ];
+
   services.xserver = {
     enable = true;
     autorun = false;
@@ -160,6 +162,8 @@ in {
     };
   };
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
+
+  programs.dconf.enable = true;
 
   programs.fuse.userAllowOther = true;
 

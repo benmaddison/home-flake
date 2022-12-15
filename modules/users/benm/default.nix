@@ -3,6 +3,8 @@
 let
   colors = self.lib.colors "nord" "hashHex";
   neovim = self.lib.import ./neovim.nix;
+  mail = self.lib.import ./mail.nix;
+  gpg = self.lib.import ./gpg.nix;
 in {
   home.username = "benm";
   home.homeDirectory = "/home/benm";
@@ -10,7 +12,7 @@ in {
 
   imports = [
     self.inputs.impermanence.nixosModules.home-manager.impermanence
-    neovim
+    neovim mail gpg
   ];
 
   home.persistence."/data/user/benm" = {
@@ -33,6 +35,7 @@ in {
   home.packages = with pkgs; [
     du-dust
     fd
+    libreoffice
     libsecret
     nerdfonts
     nix-diff
@@ -42,6 +45,47 @@ in {
   ];
 
   fonts.fontconfig.enable = true;
+
+  local = {
+    mail = {
+      workonline = {
+        address = "benm@workonline.africa";
+        aliases = [
+          "benm@workonline.co.za"
+          "ben@workonline.co.za"
+          "benmaddison@workonline.co.za"
+          "maddison@workonline.co.za"
+          "benjmaddison@workonline.co.za"
+        ];
+        primary = true;
+        imap.host = "outlook.office365.com";
+        smtp = {
+          host = "smtp.office365.com";
+          port = 587;
+          tls.useStartTls = true;
+        };
+        folders = {
+          inbox = "INBOX";
+          sent = "Sent Items";
+          trash = "Deleted Items";
+        };
+        extraFolders.spam = "Junk Email";
+        mbsyncPipelineDepth = 1;
+      };
+      family = {
+        address = "ben@maddison.family";
+        aliases = [ "bm@mycenae.holdings" ];
+        flavor = "fastmail.com";
+        folders.inbox = "INBOX";
+        extraFolders.snoozed = "Snoozed";
+      };
+    };
+    gpg = {
+      enable = true;
+      defaultSignKey = "0xB48B6860";
+      defaultEncryptKey = "0xFEA8F45D";
+    };
+  };
 
   programs.alacritty = {
     enable = true;
@@ -74,7 +118,7 @@ in {
         };
       };
       font = {
-        normal.family = "SauceCodePro Nerd Font";
+        normal.family = "SauceCodePro Nerd Font Mono";
         size = 12;
       };
     };
@@ -110,21 +154,21 @@ in {
             enable = true;
             crtc = 1;
             primary = true;
-            position = "0x0";
+            position = "3440x0";
             mode = "3440x1440";
             rate = "49.99";
           };
           DP-1-2 = {
             enable = true;
             crtc = 0;
-            position = "3440x0";
+            position = "6880x0";
             mode = "3440x1440";
             rate = "49.99";
           };
           DP-1-3 = {
             enable = true;
             crtc = 2;
-            position = "6880x0";
+            position = "0x0";
             mode = "3440x1440";
             rate = "29.99";
           };
@@ -207,13 +251,6 @@ in {
     extraConfig = {
       credential.helper = "${package}/bin/git-credential-libsecret";
     };
-  };
-
-  programs.gpg = {
-    enable = true;
-    homedir = "${config.xdg.dataHome}/gnupg";
-    mutableKeys = false;
-    mutableTrust = false;
   };
 
   programs.home-manager.enable = true;
@@ -521,6 +558,9 @@ in {
       };
     };
     profilePath = ".config/sx/profile";
+    profileExtra = ''
+      ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all
+    '';
     scriptPath = ".config/sx/sxrc";
   };
   
