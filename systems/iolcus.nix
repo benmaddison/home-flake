@@ -146,10 +146,10 @@ in {
   '';
 
   nix = {
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
-    trustedUsers = [ "@wheel" ];
+    settings = {
+      trusted-users = [ "@wheel" ];
+      experimental-features = [ "nix-command" "flakes" ];
+    };
     nixPath = [ "nixpkgs=/run/current-system/source/inputs/nixpkgs" ];
     registry =
       lib.mapAttrs (name: flake: { inherit flake; }) self.inputs //
