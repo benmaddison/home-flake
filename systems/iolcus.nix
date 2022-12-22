@@ -19,10 +19,8 @@ in {
   console = {
     packages = with pkgs; [ terminus_font powerline-fonts ];
     font = "ter-powerline-v20n";
-    colors = with self.lib.colors "nord" "hex"; [
-      black red green orange blue magenta cyan light-grey
-      dark-grey light-red light-green yellow light-blue light-purple teal white
-    ];
+    colors = with self.lib.colors "nord" "hex";
+      (lib.attrValues normal) ++ (lib.attrValues bright);
   };
   services.kmscon = {
     # enable = true;

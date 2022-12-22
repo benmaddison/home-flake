@@ -8,12 +8,16 @@
     vimdiffAlias = true;
     plugins = with pkgs.vimPlugins; [
 
+      playground
       {
-        plugin = (nvim-treesitter.withPlugins (_: pkgs.tree-sitter.allGrammars));
+        plugin = nvim-treesitter.withAllGrammars;
         config = ''
           lua <<EOF
           require'nvim-treesitter.configs'.setup {
             highlight = {
+              enable = true,
+            },
+            playground = {
               enable = true,
             },
           }
@@ -113,6 +117,9 @@
         plugin = nord-vim;
         config = ''
           colorscheme nord
+          let g:nord_uniform_diff_background = 1
+          let g:nord_italic = 1
+          let g:nord_italic_comments = 1
         '';
       }
 

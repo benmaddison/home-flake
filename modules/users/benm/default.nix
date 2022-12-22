@@ -91,30 +91,14 @@ in {
     enable = true;
     settings = {
       colors = with colors; {
-        primary = {
-          background = black;
-          foreground = light-grey;
-        };
-        search = {
-          matches = {
-            background = cyan;
-            foreground = black;
-          };
+        inherit primary normal bright dim;
+        search.matches = {
+            background = normal.cyan;
+            foreground = "CellBackground";
         };
         footer_bar = {
-          background = cyan;
-          foreground = black;
-        };
-        normal = {
-          inherit black red green yellow blue magenta cyan white;
-        };
-        bright = {
-          inherit red green magenta;
-          black = dark-grey;
-          yellow = orange;
-          blue = light-blue;
-          cyan = teal;
-          white = light-grey;
+          background = misc.nord2;
+          foreground = misc.nord4;
         };
       };
       font = {
@@ -424,40 +408,38 @@ in {
             inherit fonts;
             statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-default.toml";
             colors = with colors; {
-              background = black;
-              separator = light-grey;
-              statusline = light-grey;
+              inherit (primary) background;
+              separator = bright.black;
+              statusline = bright.black;
               focusedWorkspace = {
-                background = blue;
-                border = light-blue;
+                background = normal.blue;
+                border = bright.blue;
+                text = bright.white;
+              };
+              activeWorkspace = with bright; {
+                background = black;
+                border = black;
                 text = white;
               };
-              activeWorkspace = {
-                background = dark-grey;
-                border = dark-grey;
-                text = light-grey;
+              inactiveWorkspace = with normal; {
+                background = black;
+                border = black;
+                text = white;
               };
-              inactiveWorkspace = {
-                background = dark-grey;
-                border = dark-grey;
-                text = light-grey;
-              };
-              urgentWorkspace = {
-                background = dark-grey;
+              urgentWorkspace = with bright; {
+                background = black;
                 border = red;
                 text = red;
               };
-              bindingMode = {
-                background = dark-grey;
+              bindingMode = with bright; {
+                background = black;
                 border = yellow;
                 text = yellow;
               };
             };
           }
         ];
-        colors = {
-          background = colors.black;
-        };
+        colors = with colors; { inherit (primary) background; };
         defaultWorkspace = "workspace number 1";
         floating.criteria = [];
         gaps.inner = 6;
