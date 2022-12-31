@@ -5,6 +5,7 @@ let
   neovim = self.lib.import ./neovim.nix;
   mail = self.lib.import ./mail.nix;
   gpg = self.lib.import ./gpg.nix;
+  rust = self.lib.import ./rust.nix;
 in {
   home.username = "benm";
   home.homeDirectory = "/home/benm";
@@ -12,7 +13,7 @@ in {
 
   imports = [
     self.inputs.impermanence.nixosModules.home-manager.impermanence
-    neovim mail gpg
+    neovim mail gpg rust
   ];
 
   home.persistence."/data/user/benm" = {
@@ -85,6 +86,7 @@ in {
       defaultSignKey = "0xB48B6860";
       defaultEncryptKey = "0xFEA8F45D";
     };
+    rust.toolchains = [ "stable" ];
   };
 
   programs.alacritty = {
