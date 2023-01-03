@@ -223,6 +223,12 @@ in {
           '';
         }
 
+        {
+          plugin = pears-nvim;
+          config = embedLua ''
+            require('pears').setup()
+          '';
+        }
       ];
 
       extraConfig = embedLua ''
