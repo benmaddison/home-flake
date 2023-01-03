@@ -73,6 +73,9 @@ in {
               highlight = {
                 enable = true,
               },
+              indent = {
+                enable = true,
+              },
               playground = {
                 enable = true,
               },
@@ -80,6 +83,7 @@ in {
                 enable = true,
               },
             }
+            vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
           '';
         }
 
@@ -205,22 +209,25 @@ in {
       ];
 
       extraConfig = embedLua ''
+        vim.o.expandtab = true
+        vim.o.hidden = true
         vim.o.ignorecase = true
-        vim.o.wildmenu = true
         vim.o.incsearch = true
+        vim.o.laststatus = 2
         vim.o.number = true
         vim.o.relativenumber = true
-        vim.o.updatetime = 300
-        vim.o.signcolumn = 'yes'
-        vim.o.hidden = true
-        vim.o.expandtab = true
-        vim.o.smarttab = true
         vim.o.shiftwidth = 4
-        vim.o.tabstop = 4
+        vim.o.showmode = false
+        vim.o.signcolumn = 'yes'
+        vim.o.smarttab = true
         vim.o.splitbelow = true
         vim.o.splitright = true
-        vim.o.laststatus = 2
-        vim.o.showmode = false
+        vim.o.tabstop = 4
+        vim.o.updatetime = 300
+        vim.o.wildmenu = true
+
+        vim.o.foldmethod = 'expr'
+        vim.o.foldenable = false
 
         vim.opt.path:append('**')
         vim.opt.fillchars:append({ vert = ' ' })
