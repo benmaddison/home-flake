@@ -48,6 +48,11 @@ in {
   fonts.fontconfig.enable = true;
 
   local = {
+    gpg = {
+      enable = true;
+      defaultSignKey = "0xB48B6860";
+      defaultEncryptKey = "0xFEA8F45D";
+    };
     mail = {
       workonline = {
         address = "benm@workonline.africa";
@@ -81,11 +86,7 @@ in {
         extraFolders.snoozed = "Snoozed";
       };
     };
-    gpg = {
-      enable = true;
-      defaultSignKey = "0xB48B6860";
-      defaultEncryptKey = "0xFEA8F45D";
-    };
+    neovim.enable = true;
     rust.toolchains = [ "stable" ];
   };
 

@@ -17,4 +17,6 @@ in {
   import = path: import path { inherit self; };
 
   colors = import ./colors.nix;
+
+  code = _lang: src: src;
 }
