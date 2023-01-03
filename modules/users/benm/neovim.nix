@@ -66,6 +66,7 @@ in {
       plugins = with pkgs.vimPlugins; [
 
         playground
+        nvim-ts-context-commentstring
         {
           plugin = nvim-treesitter.withAllGrammars;
           config = embedLua ''
@@ -82,8 +83,23 @@ in {
               query_linter = {
                 enable = true,
               },
+              context_commentstring = {
+                enable = true,
+                enable_autocommand = false,
+                config = {
+                  query = '; %s',
+                },
+              },
             }
             vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+          '';
+        }
+        {
+          plugin = comment-nvim;
+          config = embedLua ''
+            require('Comment').setup({
+              pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
+            })
           '';
         }
 
@@ -206,6 +222,7 @@ in {
             vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
           '';
         }
+
       ];
 
       extraConfig = embedLua ''
