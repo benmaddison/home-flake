@@ -204,44 +204,42 @@ in {
         }
       ];
 
-      extraConfig = ''
-        set nocompatible
-        set ignorecase
-        set path+=**
-        set wildmenu
-        set incsearch
-        set number relativenumber
-        set updatetime=300
-        set signcolumn=yes
-        set hidden
-        set expandtab
-        set smarttab
-        set shiftwidth=4
-        set tabstop=4
-        set splitbelow
-        set splitright
-        set laststatus=2
-        set noshowmode
-        set fillchars+=vert:\ 
+      extraConfig = embedLua ''
+        vim.o.ignorecase = true
+        vim.o.wildmenu = true
+        vim.o.incsearch = true
+        vim.o.number = true
+        vim.o.relativenumber = true
+        vim.o.updatetime = 300
+        vim.o.signcolumn = 'yes'
+        vim.o.hidden = true
+        vim.o.expandtab = true
+        vim.o.smarttab = true
+        vim.o.shiftwidth = 4
+        vim.o.tabstop = 4
+        vim.o.splitbelow = true
+        vim.o.splitright = true
+        vim.o.laststatus = 2
+        vim.o.showmode = false
 
-        let mapleader='\'
-        filetype plugin indent on
-        syntax enable
+        vim.opt.path:append('**')
+        vim.opt.fillchars:append({ vert = ' ' })
 
-        let g:loaded_netrw = 1
-        let g:loaded_netrwPlugin = 1
+        vim.cmd.filetype('plugin indent on')
+        vim.cmd.syntax('enable')
 
-        ${embedLua ''
-          vim.keymap.set('n', '<C-h>', '<C-w>h', {})
-          vim.keymap.set('n', '<C-j>', '<C-w>j', {})
-          vim.keymap.set('n', '<C-k>', '<C-w>k', {})
-          vim.keymap.set('n', '<C-l>', '<C-w>l', {})
+        vim.g.loaded_netrw = 1
+        vim.g.loaded_netrwPlugin = 1
 
-          vim.keymap.set('n', '[g', vim.diagnostic.goto_prev, {})
-          vim.keymap.set('n', ']g', vim.diagnostic.goto_next, {})
+        vim.keymap.set('n', '<C-h>', '<C-w>h', {})
+        vim.keymap.set('n', '<C-j>', '<C-w>j', {})
+        vim.keymap.set('n', '<C-k>', '<C-w>k', {})
+        vim.keymap.set('n', '<C-l>', '<C-w>l', {})
 
-          vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
-        ''}
+        vim.keymap.set('n', '[g', vim.diagnostic.goto_prev, {})
+        vim.keymap.set('n', ']g', vim.diagnostic.goto_next, {})
+
+        vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
       '';
     };
   };
