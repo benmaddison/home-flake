@@ -117,6 +117,10 @@ in {
               vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
               vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
               vim.keymap.set('n', '<M-k>', vim.lsp.buf.signature_help, opts)
+              vim.api.nvim_create_autocmd({'BufWritePre'}, {
+                pattern = '*',
+                callback = function() vim.lsp.buf.formatting_seq_sync() end,
+              })
             end
             require('lspconfig').rnix.setup {
               cmd = { "${pkgs.rnix-lsp}/bin/rnix-lsp" },
@@ -129,9 +133,19 @@ in {
         {
           plugin = rust-tools-nvim;
           config = embedLua ''
-            require('rust-tools').setup({
+            local rt = require('rust-tools')
+            rt.setup({
               server = {
-                on_attach = lsp_on_attach,
+                on_attach = function(client, bufnr)
+                  lsp_on_attach(client, bufnr)
+                  -- Hover actions
+                  vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+                  -- Code action groups
+                  vim.keymap.set("n", "<leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+                  -- Cargo run
+                  vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', {})
+                  vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', {})
+                end,
               },
             })
           '';
@@ -143,6 +157,8 @@ in {
         luasnip
         cmp_luasnip
         lspkind-nvim
+        cmp-nvim-lsp-signature-help
+        cmp-nvim-lua
         {
           plugin = nvim-cmp;
           config = embedLua ''
@@ -178,6 +194,8 @@ in {
               },
               sources = {
                 { name = 'nvim_lsp' },
+                { name = 'nvim_lsp_signature_help'},
+                { name = 'nvim_lua'},
                 { name = 'luasnip' },
                 { name = 'path' },
                 { name = 'buffer' },
@@ -193,6 +211,10 @@ in {
                     cmdline = "[cmd]",
                   }),
                 }),
+              },
+              window = {
+                completion = cmp.config.window.bordered(),
+                documentation = cmp.config.window.bordered(),
               },
             }
           '';
@@ -229,6 +251,14 @@ in {
             require('pears').setup()
           '';
         }
+
+        {
+          plugin = vim-floaterm;
+          config = embedLua ''
+            vim.keymap.set('n', '<leader>tt', '<cmd>FloatermNew<cr>', {})
+            vim.keymap.set('n', '<leader>tn', '<cmd>FloatermNew nix repl<cr>', {})
+          '';
+        }
       ];
 
       extraConfig = embedLua ''
@@ -241,7 +271,6 @@ in {
         vim.o.relativenumber = true
         vim.o.shiftwidth = 4
         vim.o.showmode = false
-        vim.o.signcolumn = 'yes'
         vim.o.smarttab = true
         vim.o.splitbelow = true
         vim.o.splitright = true
@@ -266,8 +295,18 @@ in {
         vim.keymap.set('n', '<C-k>', '<C-w>k', {})
         vim.keymap.set('n', '<C-l>', '<C-w>l', {})
 
+        vim.diagnostic.config({
+          virtual_text = false,
+          signs = true,
+          update_in_insert = true,
+        })
+        vim.o.signcolumn = 'yes'
         vim.keymap.set('n', '[g', vim.diagnostic.goto_prev, {})
         vim.keymap.set('n', ']g', vim.diagnostic.goto_next, {})
+        vim.api.nvim_create_autocmd({'CursorHold'}, {
+          pattern = '*',
+          callback = function() vim.diagnostic.open_float() end,
+        })
 
         vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
       '';
