@@ -7,7 +7,8 @@ let
     ${text}
     EOF
   '';
-in {
+in
+{
   options.local.neovim = {
     enable = lib.mkEnableOption "enable neovim";
     treesitterQueries = with lib; mkOption {
@@ -49,14 +50,16 @@ in {
     };
   };
 
-  config  = lib.mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
 
-    xdg.configFile = let
-      path = lang: module: "nvim/after/queries/${lang}/${module}.scm";
-      makeQuery = lang: mod: source: lib.nameValuePair (path lang mod) { inherit source; };
-      queriesFor = lang: mods: lib.mapAttrs' (makeQuery lang) mods;
-      queries = lib.mapAttrsToList queriesFor cfg.treesitterQueries;
-    in lib.foldl' (a: b: a // b) {} queries;
+    xdg.configFile =
+      let
+        path = lang: module: "nvim/after/queries/${lang}/${module}.scm";
+        makeQuery = lang: mod: source: lib.nameValuePair (path lang mod) { inherit source; };
+        queriesFor = lang: mods: lib.mapAttrs' (makeQuery lang) mods;
+        queries = lib.mapAttrsToList queriesFor cfg.treesitterQueries;
+      in
+      lib.foldl' (a: b: a // b) { } queries;
 
     programs.neovim = {
       enable = true;
