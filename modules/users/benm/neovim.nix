@@ -2,62 +2,38 @@
 
 let
   cfg = config.local.neovim;
-  embedLua = text: ''
-    lua <<EOF
-    ${text}
-    EOF
-  '';
 in
 {
   options.local.neovim = {
     enable = lib.mkEnableOption "enable neovim";
-    treesitterQueries = with lib; mkOption {
-      type = with types; attrsOf (attrsOf package);
-      default = {
-        nix.injections = pkgs.writeText "nix-injections.scm" (self.lib.code "query" ''
-          ;; extends
-
-          ((apply_expression
-            function: (apply_expression function: (_) @_func)
-            argument: [
-              (string_expression (string_fragment) @bash)
-              (indented_string_expression (string_fragment) @bash)
-            ])
-            (#match? @_func "(^|\\.)write(Bash|Dash|ShellScript)(Bin)?$"))
-            @combined
-
-          ((apply_expression
-            function: (_) @_func
-            argument: [
-              (string_expression (string_fragment) @lua)
-              (indented_string_expression (string_fragment) @lua)
-            ])
-            (#match? @_func "(^|\\.)embedLua$"))
-            @combined
-
-          ((apply_expression
-            function: (apply_expression
-              function: (_) @_func
-              argument: (string_expression (string_fragment) @language))
-            argument: [
-              (string_expression (string_fragment) @content)
-              (indented_string_expression (string_fragment) @content)
-            ])
-            (#match? @_func "(^|\\.)code"))
-            @combined
-        '');
-      };
-    };
   };
 
   config = lib.mkIf cfg.enable {
 
     xdg.configFile =
       let
+        treesitterQueries = {
+          nix.injections = self.lib.code "query" ''
+            ;; extends
+            ((apply_expression
+              function: (apply_expression
+                function: (_) @_func
+                argument: (string_expression (string_fragment) @language))
+              argument: [
+                (string_expression (string_fragment) @content)
+                (indented_string_expression (string_fragment) @content)
+              ])
+              (#match? @_func "(^|\\.)code"))
+              @combined
+          '';
+        };
         path = lang: module: "nvim/after/queries/${lang}/${module}.scm";
-        makeQuery = lang: mod: source: lib.nameValuePair (path lang mod) { inherit source; };
+        writeQuery = lang: mod: src:
+          { source = pkgs.writeText "${lang}-${mod}.scm" src; };
+        makeQuery = lang: mod: src:
+          lib.nameValuePair (path lang mod) (writeQuery lang mod src);
         queriesFor = lang: mods: lib.mapAttrs' (makeQuery lang) mods;
-        queries = lib.mapAttrsToList queriesFor cfg.treesitterQueries;
+        queries = lib.mapAttrsToList queriesFor treesitterQueries;
       in
       lib.foldl' (a: b: a // b) { } queries;
 
@@ -72,7 +48,8 @@ in
         nvim-ts-context-commentstring
         {
           plugin = nvim-treesitter.withAllGrammars;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             require('nvim-treesitter.configs').setup {
               highlight = {
                 enable = true,
@@ -95,21 +72,25 @@ in
               },
             }
             vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+            EOF
           '';
         }
         {
           plugin = comment-nvim;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             require('Comment').setup({
               pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
             })
+            EOF
           '';
         }
 
         cmp-nvim-lsp
         {
           plugin = nvim-lspconfig;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
             lsp_on_attach = function(client, bufnr)
               local opts = { noremap = true, silent = true, buffer = bufnr }
@@ -130,12 +111,14 @@ in
               on_attach = lsp_on_attach,
               capabilities = lsp_capabilities,
             }
+            EOF
           '';
         }
 
         {
           plugin = rust-tools-nvim;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             local rt = require('rust-tools')
             rt.setup({
               server = {
@@ -151,6 +134,7 @@ in
                 end,
               },
             })
+            EOF
           '';
         }
 
@@ -164,7 +148,8 @@ in
         cmp-nvim-lua
         {
           plugin = nvim-cmp;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             local cmp = require('cmp')
             cmp.setup {
               mapping = cmp.mapping.preset.insert({
@@ -220,20 +205,35 @@ in
                 documentation = cmp.config.window.bordered(),
               },
             }
+            EOF
           '';
         }
 
         {
-          plugin = nord-nvim;
-          config = embedLua ''
-            require('nord').set()
+          plugin = onenord-nvim;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('onenord').setup({
+              theme = 'dark',
+              styles = {
+                diagnostics = 'undercurl',
+                comments = 'italic',
+                strings = 'italic',
+                functions = 'bold',
+              },
+              disable = {
+                background = true,
+              },
+            })
+            EOF
           '';
         }
 
         telescope-fzf-native-nvim
         {
           plugin = telescope-nvim;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             local telescope = require('telescope')
             telescope.setup{}
             telescope.load_extension('fzf')
@@ -245,27 +245,33 @@ in
             vim.keymap.set('n', '<leader>pF', builtin.filetypes, {})
             vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
             vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
+            EOF
           '';
         }
 
         {
           plugin = pears-nvim;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             require('pears').setup()
+            EOF
           '';
         }
 
         {
           plugin = vim-floaterm;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             vim.keymap.set('n', '<leader>tt', '<cmd>FloatermNew<cr>', {})
             vim.keymap.set('n', '<leader>tn', '<cmd>FloatermNew nix repl<cr>', {})
+            EOF
           '';
         }
 
         {
           plugin = gitsigns-nvim;
-          config = embedLua ''
+          config = self.lib.code "vim" ''
+            lua <<EOF
             require('gitsigns').setup{
               on_attach = function(bufnr)
                 local gs = package.loaded.gitsigns
@@ -302,11 +308,13 @@ in
                 map('n', '<leader>hD', gs.toggle_deleted)
               end
             }
+            EOF
           '';
         }
       ];
 
-      extraConfig = embedLua ''
+      extraConfig = self.lib.code "vim" ''
+        lua <<EOF
         vim.o.expandtab = true
         vim.o.hidden = true
         vim.o.ignorecase = true
@@ -327,7 +335,6 @@ in
         vim.o.foldenable = false
 
         vim.opt.path:append('**')
-        vim.opt.fillchars:append({ vert = ' ' })
 
         vim.cmd.filetype('plugin indent on')
         vim.cmd.syntax('enable')
@@ -354,6 +361,7 @@ in
         })
 
         vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
+        EOF
       '';
     };
   };
