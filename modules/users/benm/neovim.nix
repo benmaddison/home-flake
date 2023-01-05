@@ -107,7 +107,7 @@ in
               })
             end
             require('lspconfig').rnix.setup {
-              cmd = { "${pkgs.rnix-lsp}/bin/rnix-lsp" },
+              cmd = { '${pkgs.rnix-lsp}/bin/rnix-lsp' },
               on_attach = lsp_on_attach,
               capabilities = lsp_capabilities,
             }
@@ -125,9 +125,9 @@ in
                 on_attach = function(client, bufnr)
                   lsp_on_attach(client, bufnr)
                   -- Hover actions
-                  vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+                  vim.keymap.set('n', '<C-space>', rt.hover_actions.hover_actions, { buffer = bufnr })
                   -- Code action groups
-                  vim.keymap.set("n", "<leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+                  vim.keymap.set('n', '<leader>a', rt.code_action_group.code_action_group, { buffer = bufnr })
                   -- Cargo run
                   vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', {})
                   vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', {})
@@ -192,11 +192,11 @@ in
                 format = require('lspkind').cmp_format({
                   mode = "symbol_text",
                   menu = ({
-                    nvim_lsp = "[lsp]",
-                    luasnip = "[luasnip]",
-                    path = "[path]",
-                    buffer = "[buffer]",
-                    cmdline = "[cmd]",
+                    nvim_lsp = '[lsp]',
+                    luasnip = '[luasnip]',
+                    path = '[path]',
+                    buffer = '[buffer]',
+                    cmdline = '[cmd]',
                   }),
                 }),
               },
@@ -254,6 +254,15 @@ in
           config = self.lib.code "vim" ''
             lua <<EOF
             require('pears').setup()
+            EOF
+          '';
+        }
+
+        {
+          plugin = nvim-surround;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('nvim-surround').setup({})
             EOF
           '';
         }
