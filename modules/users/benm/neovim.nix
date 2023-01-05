@@ -26,6 +26,10 @@ in
               (#match? @_func "(^|\\.)code"))
               @combined
           '';
+          lua.highlights = self.lib.code "query" ''
+            ;; extends
+            (string) @nospell
+          '';
         };
         path = lang: module: "nvim/after/queries/${lang}/${module}.scm";
         writeQuery = lang: mod: src:
@@ -334,6 +338,7 @@ in
         vim.o.shiftwidth = 4
         vim.o.showmode = false
         vim.o.smarttab = true
+        vim.o.spell = true
         vim.o.splitbelow = true
         vim.o.splitright = true
         vim.o.tabstop = 4
