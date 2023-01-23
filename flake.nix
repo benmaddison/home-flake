@@ -1,6 +1,7 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    flake-utils.url = "github:numtide/flake-utils";
     impermanence.url = "github:nix-community/impermanence";
     home-manager = {
       url = "github:nix-community/home-manager/release-22.11";
@@ -13,11 +14,21 @@
   };
 
   outputs = { self, ... } @ inputs:
-  {
-    lib = import ./lib { inherit self; };
+    {
+      lib = import ./lib { inherit self; };
 
-    nixosConfigurations = self.lib.import ./systems;
+      nixosConfigurations = self.lib.import ./systems;
 
-    nixosModules = self.lib.import ./modules;
-  };
+      nixosModules = self.lib.import ./modules;
+    }
+
+    // inputs.flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = inputs.nixpkgs.legacyPackages.${system}; in
+
+      rec {
+        packages = {
+          oauth2ms = pkgs.callPackage ./pkgs/oauth2ms.nix { };
+        };
+      }
+    );
 }
