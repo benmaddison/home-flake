@@ -70,6 +70,7 @@ in {
           port = 587;
           tls.useStartTls = true;
         };
+        oauth2 = true;
         folders = {
           inbox = "INBOX";
           sent = "Sent Items";
