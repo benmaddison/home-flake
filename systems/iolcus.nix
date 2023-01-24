@@ -89,6 +89,7 @@ in {
   networking.useNetworkd = true;
   networking.networkmanager.enable = true;
   networking.search = [ "wolcomm.net" ];
+  networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
   systemd.services.systemd-networkd-wait-online.enable = false;
   services.resolved.dnssec = "true";
 
