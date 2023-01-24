@@ -10,6 +10,7 @@ let
   neovim = self.lib.import ./neovim.nix;
   persistence = self.lib.import ./persistence.nix;
   rust = self.lib.import ./rust.nix;
+  slack = self.lib.import ./slack.nix;
   vifm = self.lib.import ./vifm.nix;
 in
 {
@@ -26,6 +27,7 @@ in
     neovim
     persistence
     rust
+    slack
     vifm
   ];
 
@@ -106,6 +108,7 @@ in
     morgen.enable = true;
     neovim.enable = true;
     rust.toolchains = [ "stable" ];
+    slack.enable = true;
     vifm = {
       enable = true;
       neovimPlugin.enable = true;
