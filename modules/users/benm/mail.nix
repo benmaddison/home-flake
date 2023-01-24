@@ -255,7 +255,7 @@ in
 
     home.packages = [ notmuch-move notmuch-move-all ];
 
-    home.persistence."/data/user/benm".directories =
+    local.persistence.directories =
       lib.mkIf (builtins.any (a: a.oauth2) (lib.attrValues cfg)) [ ".config/oauth2ms" ];
 
     programs.notmuch = {

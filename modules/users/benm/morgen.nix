@@ -10,6 +10,6 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = [ pkgs.morgen ];
-    home.persistence."/data/user/benm".directories = [ ".config/Morgen" ];
+    local.persistence.directories = [ ".config/Morgen" ];
   };
 }

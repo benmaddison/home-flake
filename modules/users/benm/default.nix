@@ -7,6 +7,7 @@ let
   mail = self.lib.import ./mail.nix;
   gpg = self.lib.import ./gpg.nix;
   morgen = self.lib.import ./morgen.nix;
+  persistence = self.lib.import ./persistence.nix;
   rust = self.lib.import ./rust.nix;
   vifm = self.lib.import ./vifm.nix;
 in
@@ -16,32 +17,15 @@ in
   home.stateVersion = "22.05";
 
   imports = [
-    self.inputs.impermanence.nixosModules.home-manager.impermanence
     azure
     neovim
     mail
     gpg
     morgen
+    persistence
     rust
     vifm
   ];
-
-  home.persistence."/data/user/benm" = {
-    allowOther = true;
-    files = [
-      ".config/gh/hosts.yml"
-    ];
-    directories = [
-      "documents"
-      "downloads"
-      "media"
-      ".cache"
-      ".config/keybase"
-      ".local/share"
-      ".mozilla/firefox/default"
-      ".zoom"
-    ];
-  };
 
   home.packages = with pkgs; [
     du-dust
@@ -61,6 +45,22 @@ in
   fonts.fontconfig.enable = true;
 
   local = {
+    persistence = {
+      enable = true;
+      files = [
+        ".config/gh/hosts.yml"
+      ];
+      directories = [
+        "documents"
+        "downloads"
+        "media"
+        ".cache"
+        ".config/keybase"
+        ".local/share"
+        ".mozilla/firefox/default"
+        ".zoom"
+      ];
+    };
     azure.enable = true;
     gpg = {
       enable = true;
