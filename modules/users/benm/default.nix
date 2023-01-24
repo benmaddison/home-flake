@@ -97,8 +97,8 @@ in {
       colors = with colors; {
         inherit primary normal bright dim;
         search.matches = {
-            background = normal.cyan;
-            foreground = "CellBackground";
+          background = normal.cyan;
+          foreground = "CellBackground";
         };
         footer_bar = {
           background = misc.nord2;
@@ -177,7 +177,7 @@ in {
       "grep" = ''grep --color=auto'';
       "fgrep" = ''fgrep --color=auto'';
       "egrep" = ''egrep --color=auto'';
-      "xc"  = ''xclip -selection clipboard'';
+      "xc" = ''xclip -selection clipboard'';
     };
   };
 
@@ -202,44 +202,48 @@ in {
 
   programs.firefox = {
     enable = true;
-    profiles.default = {};
+    profiles.default = { };
   };
 
-  programs.fzf = let
-    fd = type: "${pkgs.fd}/bin/fd --type ${type} --hidden --follow --exclude .git";
-  in {
-    enable = true;
-    defaultCommand = fd "file";
-    defaultOptions = [
-      "--reverse"
-      "--height 40%"
-      "--border"
-      "--margin 0,2"
-      "--inline-info"
-      "--color 'fg:-1,bg:-1,hl:2,fg+:15,bg+:8,hl+:2,gutter:-1,pointer:1,info:8,spinner:8,header:8,border:8,prompt:4,marker:3'"
-    ];
-    changeDirWidgetCommand = "${fd "directory"} '.' ${config.home.homeDirectory}";
-    fileWidgetCommand = fd "file";
-  };
+  programs.fzf =
+    let
+      fd = type: "${pkgs.fd}/bin/fd --type ${type} --hidden --follow --exclude .git";
+    in
+    {
+      enable = true;
+      defaultCommand = fd "file";
+      defaultOptions = [
+        "--reverse"
+        "--height 40%"
+        "--border"
+        "--margin 0,2"
+        "--inline-info"
+        "--color 'fg:-1,bg:-1,hl:2,fg+:15,bg+:8,hl+:2,gutter:-1,pointer:1,info:8,spinner:8,header:8,border:8,prompt:4,marker:3'"
+      ];
+      changeDirWidgetCommand = "${fd "directory"} '.' ${config.home.homeDirectory}";
+      fileWidgetCommand = fd "file";
+    };
 
   programs.gh.enable = true;
 
   # TODO: enable commit signing
-  programs.git = let
-    package = pkgs.git.override { withLibsecret = true; };
-  in {
-    inherit package;
-    enable = true;
-    userName = "Ben Maddison";
-    userEmail = "benm@workonline.africa";
-    lfs.enable = true;
-    aliases = {
-      "root" = "rev-parse --show-toplevel";
+  programs.git =
+    let
+      package = pkgs.git.override { withLibsecret = true; };
+    in
+    {
+      inherit package;
+      enable = true;
+      userName = "Ben Maddison";
+      userEmail = "benm@workonline.africa";
+      lfs.enable = true;
+      aliases = {
+        "root" = "rev-parse --show-toplevel";
+      };
+      extraConfig = {
+        credential.helper = "${package}/bin/git-credential-libsecret";
+      };
     };
-    extraConfig = {
-      credential.helper = "${package}/bin/git-credential-libsecret";
-    };
-  };
 
   programs.home-manager.enable = true;
 
@@ -318,7 +322,7 @@ in {
     enable = true;
     settings = {
       pane_frames = false;
-      keybinds.unbind = [ { Ctrl = "h"; } ];
+      keybinds.unbind = [{ Ctrl = "h"; }];
       theme = "nord";
       themes.nord = {
         fg = [ 216 222 233 ];
@@ -336,7 +340,7 @@ in {
     };
   };
   xdg.configFile."zellij/layouts/default.yaml".text =
-    lib.generators.toYAML {} {
+    lib.generators.toYAML { } {
       template = {
         direction = "Horizontal";
         parts = [
@@ -358,7 +362,7 @@ in {
           #}
         ];
       };
-      tabs = [ { direction = "Vertical"; } ];
+      tabs = [{ direction = "Vertical"; }];
     };
 
   programs.zoxide.enable = true;
@@ -380,162 +384,173 @@ in {
   xdg = {
     enable = true;
     mimeApps.enable = true;
-    userDirs = let home = config.home.homeDirectory; in {
-      enable = true;
-      createDirectories = true;
-      desktop = "${home}/desktop";
-      documents = "${home}/documents";
-      download = "${home}/downloads";
-      music = "${home}/media/music";
-      pictures = "${home}/media/pictures";
-      publicShare = "${home}/public";
-      templates = "${home}/templates";
-      videos = "${home}/media/videos";
-    };
+    userDirs = let home = config.home.homeDirectory; in
+      {
+        enable = true;
+        createDirectories = true;
+        desktop = "${home}/desktop";
+        documents = "${home}/documents";
+        download = "${home}/downloads";
+        music = "${home}/media/music";
+        pictures = "${home}/media/pictures";
+        publicShare = "${home}/public";
+        templates = "${home}/templates";
+        videos = "${home}/media/videos";
+        extraConfig = {
+          XDG_ATTACH_DIR = "${config.xdg.userDirs.download}/attachments";
+        };
+      };
   };
 
   xsession = {
     enable = true;
-    windowManager.i3 = let
-      fonts = {
-        names = [ "SauceCodePro Nerd Font" ];
-        style = "Regular";
-        size = 12.0;
-      };
-    in {
-      enable = true;
-      package = pkgs.i3-gaps;
-      config = {
-        inherit fonts;
-        bars = [
-          {
-            inherit fonts;
-            statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-default.toml";
-            colors = with colors; {
-              inherit (primary) background;
-              separator = bright.black;
-              statusline = bright.black;
-              focusedWorkspace = {
-                background = normal.blue;
-                border = bright.blue;
-                text = bright.white;
+    windowManager.i3 =
+      let
+        fonts = {
+          names = [ "SauceCodePro Nerd Font" ];
+          style = "Regular";
+          size = 12.0;
+        };
+      in
+      {
+        enable = true;
+        package = pkgs.i3-gaps;
+        config = {
+          inherit fonts;
+          bars = [
+            {
+              inherit fonts;
+              statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-default.toml";
+              colors = with colors; {
+                inherit (primary) background;
+                separator = bright.black;
+                statusline = bright.black;
+                focusedWorkspace = {
+                  background = normal.blue;
+                  border = bright.blue;
+                  text = bright.white;
+                };
+                activeWorkspace = with bright; {
+                  background = black;
+                  border = black;
+                  text = white;
+                };
+                inactiveWorkspace = with normal; {
+                  background = black;
+                  border = black;
+                  text = white;
+                };
+                urgentWorkspace = with bright; {
+                  background = black;
+                  border = red;
+                  text = red;
+                };
+                bindingMode = with bright; {
+                  background = black;
+                  border = yellow;
+                  text = yellow;
+                };
               };
-              activeWorkspace = with bright; {
-                background = black;
-                border = black;
-                text = white;
-              };
-              inactiveWorkspace = with normal; {
-                background = black;
-                border = black;
-                text = white;
-              };
-              urgentWorkspace = with bright; {
-                background = black;
-                border = red;
-                text = red;
-              };
-              bindingMode = with bright; {
-                background = black;
-                border = yellow;
-                text = yellow;
-              };
+            }
+          ];
+          colors = with colors; { inherit (primary) background; };
+          defaultWorkspace = "workspace number 1";
+          floating.criteria = [ ];
+          gaps.inner = 6;
+          modifier = "Mod4";
+          terminal = "${pkgs.alacritty}/bin/alacritty";
+          startup = [
+            {
+              command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+              notification = false;
+            }
+          ];
+          keybindings =
+            let
+              cfg = config.xsession.windowManager.i3.config;
+              mod = cfg.modifier;
+              alt = "Mod1";
+
+              # TODO: "Ctrl+[0..9] -> workspaces 11 - 20
+              workspaces = [ 1 2 3 4 5 6 7 8 9 10 ];
+              workspaceBindings = mod: cmd:
+                let
+                  key = ws: toString (lib.mod ws 10);
+                  binding = mod: cmd: ws:
+                    lib.nameValuePair "${mod}+${key ws}" "${cmd ws}";
+                in
+                lib.listToAttrs (map (binding mod cmd) workspaces);
+              workspaceNum = ws: "workspace number ${toString ws}";
+
+              directions =
+                { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
+              navBindings = mod: cmd:
+                let
+                  binding = mod: cmd: key: direction:
+                    lib.nameValuePair "${mod}+${key}" "${cmd direction}";
+                in
+                lib.mapAttrs' (binding mod cmd) directions;
+
+              focusWorkspace = workspaceNum;
+              moveContainerToWorkspace = ws:
+                "move container to ${workspaceNum ws}";
+              followContainerToWorkspace = ws:
+                "${moveContainerToWorkspace ws}; ${focusWorkspace ws}";
+              moveFocus = direction: "focus ${direction}";
+              moveContainer = direction: "move ${direction}";
+              moveWorkspaceToOutput = direction:
+                "move workspace to output ${direction}";
+            in
+            workspaceBindings "${mod}" focusWorkspace //
+            workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
+            workspaceBindings "${mod}+${alt}" followContainerToWorkspace //
+            navBindings "${mod}" moveFocus //
+            navBindings "${mod}+Shift" moveContainer //
+            navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
+            {
+              "${mod}+Return" = "exec ${cfg.terminal}";
+              # TODO: "${mod}+Shift+Return" -> launch browser
+              "${mod}+space" = "exec ${cfg.menu}";
+              # TODO: "${mod}+Shift+space" -> cmd launcher
+              # TODO: "${mod}+Ctrl+space" -> window launcher
+              # TODO: "${mod}+${alt}+space" -> file launcher
+              # TODO: "${mod}+Shift+question" -> help pop-up
+              # TODO: "${mod}+equal" -> calulator
+              # TODO: "${mod}+z" -> fuzzy finder
+              "${mod}+q" = "[con_id=\"__focused__\"] kill";
+
+              "${mod}+Tab" = "workspace next";
+              "${mod}+Shift+Tab" = "workspace previous";
+
+              # TODO: scratchpad move/show
+
+              "${mod}+backslash" = "[urgent=oldest] focus";
+
+              "${mod}+BackSpace" = "split toggle";
+              "${mod}+f" = "fullscreen toggle";
+              "${mod}+t" = "layout toggle tabbed splith splitv";
+              "${mod}+Shift+f" = "floating toggle";
+              "${mod}+Shift+t" = "focus mode_toggle";
+
+              "${mod}+Escape" = "exec systemctl start physlock.service";
+              "${mod}+Shift+c" = "reload";
+              "${mod}+Shift+r" = "restart";
+              "${mod}+Shift+q" = "exec i3-msg exit";
+
+              # TODO: "${mod}+grave -> show tray
+              # TODO: "${mod}+Shift+v -> vpn toggle
+              # TODO: "${mod}+n -> notifications
+              # TODO: "${mod}+Shift+n -> file manager
+
+              "${mod}+r" = "mode resize";
             };
-          }
-        ];
-        colors = with colors; { inherit (primary) background; };
-        defaultWorkspace = "workspace number 1";
-        floating.criteria = [];
-        gaps.inner = 6;
-        modifier = "Mod4";
-        terminal = "${pkgs.alacritty}/bin/alacritty";
-        startup = [
-          {
-            command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
-            notification = false;
-          }
-        ];
-        keybindings = let
-          cfg = config.xsession.windowManager.i3.config;
-          mod = cfg.modifier;
-          alt = "Mod1";
-
-          # TODO: "Ctrl+[0..9] -> workspaces 11 - 20
-          workspaces = [ 1 2 3 4 5 6 7 8 9 10 ];
-          workspaceBindings = mod: cmd: let
-            key = ws: toString (lib.mod ws 10);
-            binding = mod: cmd: ws:
-              lib.nameValuePair "${mod}+${key ws}" "${cmd ws}";
-          in lib.listToAttrs (map (binding mod cmd) workspaces);
-          workspaceNum = ws: "workspace number ${toString ws}";
-
-          directions =
-            { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
-          navBindings = mod: cmd: let
-            binding = mod: cmd: key: direction:
-              lib.nameValuePair "${mod}+${key}" "${cmd direction}";
-          in lib.mapAttrs' (binding mod cmd) directions;
-
-          focusWorkspace = workspaceNum;
-          moveContainerToWorkspace = ws:
-            "move container to ${workspaceNum ws}";
-          followContainerToWorkspace = ws:
-            "${moveContainerToWorkspace ws}; ${focusWorkspace ws}";
-          moveFocus = direction: "focus ${direction}";
-          moveContainer = direction: "move ${direction}";
-          moveWorkspaceToOutput = direction:
-            "move workspace to output ${direction}";
-        in
-          workspaceBindings "${mod}" focusWorkspace //
-          workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
-          workspaceBindings "${mod}+${alt}" followContainerToWorkspace //
-          navBindings "${mod}" moveFocus //
-          navBindings "${mod}+Shift" moveContainer //
-          navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
-        {
-          "${mod}+Return" = "exec ${cfg.terminal}";
-          # TODO: "${mod}+Shift+Return" -> launch browser
-          "${mod}+space" = "exec ${cfg.menu}";
-          # TODO: "${mod}+Shift+space" -> cmd launcher
-          # TODO: "${mod}+Ctrl+space" -> window launcher
-          # TODO: "${mod}+${alt}+space" -> file launcher
-          # TODO: "${mod}+Shift+question" -> help pop-up
-          # TODO: "${mod}+equal" -> calulator
-          # TODO: "${mod}+z" -> fuzzy finder
-          "${mod}+q" = "[con_id=\"__focused__\"] kill";
-
-          "${mod}+Tab"       = "workspace next";
-          "${mod}+Shift+Tab" = "workspace previous";
-
-          # TODO: scratchpad move/show
-
-          "${mod}+backslash" = "[urgent=oldest] focus";
-
-          "${mod}+BackSpace" = "split toggle";
-          "${mod}+f" = "fullscreen toggle";
-          "${mod}+t" = "layout toggle tabbed splith splitv";
-          "${mod}+Shift+f" = "floating toggle";
-          "${mod}+Shift+t" = "focus mode_toggle";
-
-          "${mod}+Escape" = "exec systemctl start physlock.service";
-          "${mod}+Shift+c" = "reload";
-          "${mod}+Shift+r" = "restart";
-          "${mod}+Shift+q" = "exec i3-msg exit";
-
-          # TODO: "${mod}+grave -> show tray
-          # TODO: "${mod}+Shift+v -> vpn toggle
-          # TODO: "${mod}+n -> notifications
-          # TODO: "${mod}+Shift+n -> file manager
-
-          "${mod}+r" = "mode resize";
         };
       };
-    };
     profilePath = ".config/sx/profile";
     profileExtra = ''
       ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all
     '';
     scriptPath = ".config/sx/sxrc";
   };
-  
+
 }
