@@ -2,18 +2,28 @@
 
 let
   colors = self.lib.colors "nord" "hashHex";
+  azure = self.lib.import ./azure.nix;
   neovim = self.lib.import ./neovim.nix;
   mail = self.lib.import ./mail.nix;
   gpg = self.lib.import ./gpg.nix;
+  morgen = self.lib.import ./morgen.nix;
   rust = self.lib.import ./rust.nix;
-in {
+  vifm = self.lib.import ./vifm.nix;
+in
+{
   home.username = "benm";
   home.homeDirectory = "/home/benm";
   home.stateVersion = "22.05";
 
   imports = [
     self.inputs.impermanence.nixosModules.home-manager.impermanence
-    neovim mail gpg rust
+    azure
+    neovim
+    mail
+    gpg
+    morgen
+    rust
+    vifm
   ];
 
   home.persistence."/data/user/benm" = {
@@ -36,10 +46,13 @@ in {
   home.packages = with pkgs; [
     du-dust
     fd
+    inetutils
     libreoffice
     libsecret
     nerdfonts
     nix-diff
+    openssl
+    psmisc
     ripgrep
     w3m
     zoom-us
@@ -48,6 +61,7 @@ in {
   fonts.fontconfig.enable = true;
 
   local = {
+    azure.enable = true;
     gpg = {
       enable = true;
       defaultSignKey = "0xB48B6860";
@@ -87,8 +101,13 @@ in {
         extraFolders.snoozed = "Snoozed";
       };
     };
+    morgen.enable = true;
     neovim.enable = true;
     rust.toolchains = [ "stable" ];
+    vifm = {
+      enable = true;
+      neovimPlugin.enable = true;
+    };
   };
 
   programs.alacritty = {

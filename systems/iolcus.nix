@@ -1,8 +1,10 @@
 { self, config, pkgs, lib, modulesPath, ... }:
 
 let
-  unfreePkgs = [ "zoom" ];
-in {
+  unfreePkgs = [ "zoom" "morgen" ];
+  insecurePkgs = [ "electron-15.5.2" ];
+in
+{
   imports = with self.inputs; [
     (modulesPath + "/installer/scan/not-detected.nix")
     impermanence.nixosModules.impermanence
@@ -157,10 +159,14 @@ in {
           type = "github";
           owner = "benmaddison";
           repo = "home-flake";
+        };
       };
-    };
   };
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
+  nixpkgs.config =
+    {
+      allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
+      permittedInsecurePackages = insecurePkgs;
+    };
 
   programs.dconf.enable = true;
 
