@@ -110,10 +110,40 @@ in
                 callback = function() vim.lsp.buf.formatting_seq_sync() end,
               })
             end
-            require('lspconfig').rnix.setup {
+
+            local lspconfig = require('lspconfig')
+
+            lspconfig.rnix.setup {
               cmd = { '${pkgs.rnix-lsp}/bin/rnix-lsp' },
               on_attach = lsp_on_attach,
               capabilities = lsp_capabilities,
+            }
+
+            local lua_runtime_path = vim.split(package.path, ';')
+            table.insert(lua_runtime_path, 'lua/?.lua')
+            table.insert(lua_runtime_path, 'lua/?/init.lua')
+            lspconfig.sumneko_lua.setup {
+              cmd = { '${pkgs.sumneko-lua-language-server}/bin/lua-language-server' },
+              on_attach = lsp_on_attach,
+              capabilities = lsp_capabilities,
+              settings = {
+                Lua = {
+                  runtime = {
+                    version = 'LuaJIT',
+                    path = lua_runtime_path,
+                  },
+                  diagnostics = {
+                    globals = { 'vim' },
+                  },
+                  workspace = {
+                    checkThirdParty = false,
+                    library = vim.api.nvim_get_runtime_file("", true),
+                  },
+                  telemetry = {
+                    enable = false,
+                  },
+                },
+              },
             }
             EOF
           '';
@@ -234,13 +264,43 @@ in
         }
 
         telescope-fzf-native-nvim
+        telescope-file-browser-nvim
         {
           plugin = telescope-nvim;
           config = self.lib.code "vim" ''
             lua <<EOF
             local telescope = require('telescope')
-            telescope.setup{}
+            local actions = require('telescope.actions')
+            telescope.setup {
+              defaults = {
+                mappings = {
+                  i = {
+                    ["<C-S>"] = actions.select_horizontal,
+                  },
+                  n = {
+                    ["<C-S>"] = actions.select_horizontal,
+                    ["l"] = actions.select_default,
+                  },
+                },
+              },
+              extensions = {
+                file_browser = {
+                  initial_mode = "normal",
+                  prompt_prefix = "/",
+                  grouped = true,
+                  hidden = true,
+                  theme = "ivy",
+                  mappings = {
+                    n = {
+                      ["h"] = telescope.extensions.file_browser.actions.goto_parent_dir,
+                      ["<space>"] = actions.toggle_selection,
+                    },
+                  },
+                },
+              },
+            }
             telescope.load_extension('fzf')
+            telescope.load_extension('file_browser')
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>pp', builtin.find_files, {})
             vim.keymap.set('n', '<leader>pf', builtin.live_grep, {})
@@ -249,6 +309,7 @@ in
             vim.keymap.set('n', '<leader>pF', builtin.filetypes, {})
             vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
             vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
+            vim.keymap.set('n', '<leader>f', telescope.extensions.file_browser.file_browser, {})
             EOF
           '';
         }
@@ -352,9 +413,6 @@ in
 
         vim.cmd.filetype('plugin indent on')
         vim.cmd.syntax('enable')
-
-        vim.g.loaded_netrw = 1
-        vim.g.loaded_netrwPlugin = 1
 
         vim.keymap.set('n', '<C-h>', '<C-w>h', {})
         vim.keymap.set('n', '<C-j>', '<C-w>j', {})
