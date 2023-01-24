@@ -28,6 +28,7 @@
       rec {
         packages = {
           oauth2ms = pkgs.callPackage ./pkgs/oauth2ms.nix { };
+          cyrus-sasl-xoauth2 = pkgs.callPackage ./pkgs/cyrus-sasl-xoauth2.nix { };
         };
       }
     );
