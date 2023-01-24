@@ -1,7 +1,7 @@
 { self, config, pkgs, lib, modulesPath, ... }:
 
 let
-  unfreePkgs = [ "zoom" "morgen" ];
+  unfreePkgs = [ "morgen" "zoom" "slack" ];
   insecurePkgs = [ "electron-15.5.2" ];
 in
 {
