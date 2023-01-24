@@ -3,10 +3,11 @@
 let
   colors = self.lib.colors "nord" "hashHex";
   azure = self.lib.import ./azure.nix;
-  neovim = self.lib.import ./neovim.nix;
-  mail = self.lib.import ./mail.nix;
+  gnome-keyring = self.lib.import ./gnome-keyring.nix;
   gpg = self.lib.import ./gpg.nix;
+  mail = self.lib.import ./mail.nix;
   morgen = self.lib.import ./morgen.nix;
+  neovim = self.lib.import ./neovim.nix;
   persistence = self.lib.import ./persistence.nix;
   rust = self.lib.import ./rust.nix;
   vifm = self.lib.import ./vifm.nix;
@@ -18,10 +19,11 @@ in
 
   imports = [
     azure
-    neovim
-    mail
+    gnome-keyring
     gpg
+    mail
     morgen
+    neovim
     persistence
     rust
     vifm
@@ -32,7 +34,6 @@ in
     fd
     inetutils
     libreoffice
-    libsecret
     nerdfonts
     nix-diff
     openssl
@@ -62,6 +63,7 @@ in
       ];
     };
     azure.enable = true;
+    gnome-keyring.enable = true;
     gpg = {
       enable = true;
       defaultSignKey = "0xB48B6860";
@@ -248,7 +250,8 @@ in
   # TODO: enable commit signing
   programs.git =
     let
-      package = pkgs.git.override { withLibsecret = true; };
+      enableKeyring = config.local.gnome-keyring.enable;
+      package = pkgs.git.override { withLibsecret = enableKeyring; };
     in
     {
       inherit package;
@@ -259,7 +262,7 @@ in
       aliases = {
         "root" = "rev-parse --show-toplevel";
       };
-      extraConfig = {
+      extraConfig = lib.mkIf (enableKeyring) {
         credential.helper = "${package}/bin/git-credential-libsecret";
       };
     };
@@ -385,14 +388,6 @@ in
     };
 
   programs.zoxide.enable = true;
-
-  services.gnome-keyring.enable = true;
-  systemd.user.paths.gnome-keyring = {
-    Unit.Description = "Watch for gnome-keyring path";
-    # TODO: don't assume that we're uid 1000
-    Path.PathExists = "/run/user/1000/keyring";
-    Install.WantedBy = [ "paths.target" ];
-  };
 
   services.keybase.enable = true;
   services.kbfs = {
