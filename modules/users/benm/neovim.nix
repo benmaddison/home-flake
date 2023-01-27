@@ -145,6 +145,12 @@ in
                 },
               },
             }
+
+            lspconfig.pyright.setup {
+              cmd = { '${pkgs.pyright}/bin/pyright-langserver', '--stdio' },
+              on_attach = lsp_on_attach,
+              capabilities = lsp_capabilities,
+            }
             EOF
           '';
         }
