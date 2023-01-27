@@ -38,7 +38,7 @@ let
     fi
 
     hostname=$(hostname -s)
-    flags=$(basename "$src_path" | cut -d':' -f2)
+    flags=$(basename "$src_path" | cut -d':' -f2 -s)
 
     i=0
     max_iter=100
