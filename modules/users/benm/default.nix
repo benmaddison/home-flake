@@ -343,6 +343,54 @@ in
 
   programs.tealdeer.enable = true;
 
+  programs.zathura = {
+    enable = true;
+    options = with colors; {
+      default-bg = primary.background;
+      default-fg = primary.foreground;
+      index-bg = primary.background;
+      index-fg = normal.blue;
+      index-active-bg = normal.blue;
+      index-active-fg = primary.background;
+      statusbar-bg = bright.black;
+      statusbar-fg = primary.foreground;
+      inputbar-bg = primary.background;
+      inputbar-fg = bright.cyan;
+      notification-bg = primary.background;
+      notification-fg = bright.cyan;
+      notification-error-bg = primary.background;
+      notification-error-fg = normal.red;
+      notification-warning-bg = primary.background;
+      notification-warning-fg = normal.yellow;
+      highlight-color = normal.yellow;
+      highlight-active-color = normal.blue;
+      completion-bg = normal.black;
+      completion-fg = normal.blue;
+      completion-highlight-bg = normal.blue;
+      completion-highlight-fg = normal.black;
+      recolor-lightcolor = normal.black;
+      recolor-darkcolor = normal.white;
+      recolor = true;
+      recolor-keephue = false;
+      font = "SauceCodePro Nerd Font Mono Regular 10";
+      adjust-open = "best-fit";
+      incremental-search = true;
+      page-padding = 6;
+      statusbar-home-tilde = true;
+      selection-clipboard = "clipboard";
+      database = "sqlite";
+      show-directories = true;
+      show-hidden = true;
+    };
+    mappings = {
+      "<PageUp>" = "navigate previous";
+      "<PageDown>" = "navigate next";
+      "+" = "zoom in";
+      "-" = "zoom out";
+      "<C-q>" = "quit";
+    };
+  };
+
   programs.zellij = {
     enable = true;
     settings = {
