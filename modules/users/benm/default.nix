@@ -9,6 +9,7 @@ let
   mail = self.lib.import ./mail.nix;
   morgen = self.lib.import ./morgen.nix;
   neovim = self.lib.import ./neovim.nix;
+  nsxiv = self.lib.import ./nsxiv.nix;
   persistence = self.lib.import ./persistence.nix;
   rust = self.lib.import ./rust.nix;
   slack = self.lib.import ./slack.nix;
@@ -26,6 +27,7 @@ in
     mail
     morgen
     neovim
+    nsxiv
     persistence
     rust
     slack
@@ -108,6 +110,10 @@ in
       };
     };
     morgen.enable = true;
+    nsxiv = {
+      enable = true;
+      settings.window = { inherit (colors.primary) background foreground; };
+    };
     neovim.enable = true;
     rust.toolchains = [ "stable" ];
     slack.enable = true;

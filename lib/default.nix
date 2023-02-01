@@ -11,12 +11,26 @@ let
     inherit (option) type default description;
   } // args);
 
-in {
-  inherit typeOf typeOfValues wrapOption;
+  filterFlatten = root: set:
+    let
+      flattenEach = path: key: value:
+        let newPath = path ++ [ key ]; in
+        if lib.isAttrs value
+        then flatten newPath value
+        else lib.nameValuePair (lib.concatStringsSep "." newPath) value;
+      flatten = path: set:
+        lib.flatten (lib.mapAttrsToList (flattenEach path) set);
+    in
+    builtins.listToAttrs (builtins.filter (x: x.value != null) (flatten root set));
+
+in
+{
+  inherit filterFlatten typeOf typeOfValues wrapOption;
 
   import = path: import path { inherit self; };
 
   colors = import ./colors.nix;
 
   code = _lang: src: src;
+
 }
