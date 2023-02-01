@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, autoconf, libtool, automake, cyrus_sasl }:
+{ self, lib, stdenv, fetchFromGitHub, autoconf, libtool, automake, cyrus_sasl }:
 
 with lib;
 stdenv.mkDerivation rec {

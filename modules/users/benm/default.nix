@@ -1,6 +1,7 @@
 { self }: { config, pkgs, lib, ... }:
 
 let
+  system = pkgs.system;
   colors = self.lib.colors "nord" "hashHex";
   azure = self.lib.import ./azure.nix;
   gnome-keyring = self.lib.import ./gnome-keyring.nix;
@@ -306,6 +307,13 @@ in
 
   programs.nix-index.enable = true;
 
+  programs.rofi = {
+    enable = true;
+    font = "SauceCodePro Nerd Font Mono Regular 10";
+    terminal = "${pkgs.alacritty}/bin/alacritty";
+    theme = "${self.packages.${system}.nord-rofi-theme}/nord.rasi";
+  };
+
   programs.ssh.enable = true;
 
   programs.starship = {
@@ -524,6 +532,7 @@ in
           gaps.inner = 6;
           modifier = "Mod4";
           terminal = "${pkgs.alacritty}/bin/alacritty";
+          menu = with config.programs.rofi; lib.mkIf enable "${package}/bin/rofi -show drun";
           startup = [
             {
               command = "${pkgs.networkmanagerapplet}/bin/nm-applet";

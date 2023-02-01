@@ -23,12 +23,16 @@
     }
 
     // inputs.flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = inputs.nixpkgs.legacyPackages.${system}; in
+      let
+        pkgs = inputs.nixpkgs.legacyPackages.${system};
+        callPackage = path: pkgs.callPackage path { inherit self; };
+      in
 
       rec {
         packages = {
-          oauth2ms = pkgs.callPackage ./pkgs/oauth2ms.nix { };
-          cyrus-sasl-xoauth2 = pkgs.callPackage ./pkgs/cyrus-sasl-xoauth2.nix { };
+          oauth2ms = callPackage ./pkgs/oauth2ms.nix;
+          cyrus-sasl-xoauth2 = callPackage ./pkgs/cyrus-sasl-xoauth2.nix;
+          nord-rofi-theme = callPackage ./pkgs/nord-rofi-theme.nix;
         };
       }
     );

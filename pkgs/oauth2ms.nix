@@ -1,4 +1,4 @@
-{ python3, fetchFromGitHub }:
+{ self, python3, fetchFromGitHub }:
 
 python3.pkgs.buildPythonApplication rec {
   pname = "oauth2ms";
