@@ -43,6 +43,7 @@ in
     psmisc
     ripgrep
     w3m
+    xclip
     zoom-us
   ];
 
