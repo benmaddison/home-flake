@@ -457,7 +457,14 @@ in
 
   xdg = {
     enable = true;
-    mimeApps.enable = true;
+    mimeApps = {
+      enable = true;
+      defaultApplications = with config.programs; lib.mkMerge [
+        (lib.mkIf zathura.enable {
+          "application/pdf" = "org.pwmt.zathura-pdf-mupdf.desktop";
+        })
+      ];
+    };
     userDirs = let home = config.home.homeDirectory; in
       {
         enable = true;
