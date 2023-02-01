@@ -489,6 +489,7 @@ in
       };
   };
 
+  xresources.path = "${config.xdg.configHome}/Xresources";
   xsession = {
     enable = true;
     windowManager.i3 =
