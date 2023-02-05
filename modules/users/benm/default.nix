@@ -119,7 +119,6 @@ in
     slack.enable = true;
     vifm = {
       enable = true;
-      neovimPlugin.enable = true;
     };
   };
 

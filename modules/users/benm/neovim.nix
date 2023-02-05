@@ -316,6 +316,50 @@ in
             vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
             vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
             vim.keymap.set('n', '<leader>f', telescope.extensions.file_browser.file_browser, {})
+            -- attachment-picker
+            vim.api.nvim_create_autocmd({'FileType'}, {
+              pattern = 'mail',
+              callback = function()
+                local actions = require('telescope.actions')
+                local action_sets = require('telescope.actions.set')
+                local state = require('telescope.actions.state')
+                local utils = require('telescope.actions.utils')
+                local ns = vim.api.nvim_create_namespace("attachment-picker")
+                local picker = function()
+                  local save_cursor = function()
+                    local cursor = vim.api.nvim_win_get_cursor(0)
+                    return vim.api.nvim_buf_set_extmark(0, ns, cursor[1], cursor[2], {})
+                  end
+                  local restore_cursor = function(mark)
+                    local pos = vim.api.nvim_buf_get_extmark_by_id(0, ns, mark, {})
+                    vim.api.nvim_win_set_cursor(0, pos)
+                    return vim.api.nvim_buf_del_extmark(0, ns, mark)
+                  end
+                  local position = save_cursor()
+                  telescope.extensions.file_browser.file_browser {
+                    attach_mappings = function(prompt_buf, _)
+                      action_sets.select:replace_if(function()
+                        local entry = state.get_selected_entry()
+                        return entry and not entry.Path:is_dir()
+                      end, function()
+                        local selections = {}
+                        utils.map_selections(prompt_buf, function(entry, _)
+                          local path = string.format("Attach: %s", entry.value)
+                          table.insert(selections, path)
+                        end)
+                        actions.close(prompt_buf)
+                        vim.api.nvim_win_set_cursor(0, { 1, 0 })
+                        vim.fn.search("Subject:", "c")
+                        vim.api.nvim_put(selections, "l", true, false)
+                        restore_cursor(position)
+                      end)
+                      return true
+                    end
+                  }
+                end
+                vim.keymap.set('n', '<leader>a', picker, {})
+              end,
+            })
             EOF
           '';
         }
