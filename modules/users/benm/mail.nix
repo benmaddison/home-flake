@@ -1,4 +1,4 @@
-{ self }: { config, options, system, pkgs, lib, ... }:
+{ self }: { config, options, pkgs, lib, ... }:
 
 let
   cfg = config.local.mail;
