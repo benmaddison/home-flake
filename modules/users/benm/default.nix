@@ -6,6 +6,7 @@ let
   azure = self.lib.import ./azure.nix;
   gnome-keyring = self.lib.import ./gnome-keyring.nix;
   gpg = self.lib.import ./gpg.nix;
+  insync = self.lib.import ./insync.nix;
   mail = self.lib.import ./mail.nix;
   morgen = self.lib.import ./morgen.nix;
   neovim = self.lib.import ./neovim.nix;
@@ -24,6 +25,7 @@ in
     azure
     gnome-keyring
     gpg
+    insync
     mail
     morgen
     neovim
