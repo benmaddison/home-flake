@@ -4,6 +4,7 @@ let
   system = pkgs.system;
   colors = self.lib.colors "nord" "hashHex";
   azure = self.lib.import ./azure.nix;
+  drawio = self.lib.import ./drawio.nix;
   gnome-keyring = self.lib.import ./gnome-keyring.nix;
   gpg = self.lib.import ./gpg.nix;
   insync = self.lib.import ./insync.nix;
@@ -23,6 +24,7 @@ in
 
   imports = [
     azure
+    drawio
     gnome-keyring
     gpg
     insync
@@ -71,6 +73,7 @@ in
       ];
     };
     azure.enable = true;
+    drawio.enable = true;
     gnome-keyring.enable = true;
     gpg = {
       enable = true;
