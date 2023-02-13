@@ -560,9 +560,9 @@ in
                                                               "move a message to a mailbox"
 
               # URL extraction ----------------------------------------------------
-              macro index,pager                       \cb     "<pipe-message> urlscan --run 'handlr open {}'<Enter>" \
+              macro index,pager                       \cb     "<pipe-message> ${pkgs.urlscan}/bin/urlscan --run 'xdg-open {}'<Enter>" \
                                                               "call urlscan to extract URLs out of a message"
-              macro attach,compose                    \cb     "<pipe-entry> urlscan --run 'handlr open {}'<Enter>" \
+              macro attach,compose                    \cb     "<pipe-entry> ${pkgs.urlscan}/bin/urlscan --run 'xdg-open {}'<Enter>" \
                                                               "call urlscan to extract URLs out of a message"
 
               # Folder Hooks --------------------------------------
