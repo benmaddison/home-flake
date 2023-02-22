@@ -41,6 +41,7 @@ in
   home.packages = with pkgs; [
     du-dust
     fd
+    file
     inetutils
     libreoffice
     nerdfonts
