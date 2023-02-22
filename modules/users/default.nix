@@ -2,12 +2,13 @@
 
 let
   cfg = config.local.users;
-in {
+in
+{
   imports = [ self.inputs.home-manager.nixosModules.home-manager ];
 
   options = {
     local.users = lib.mkOption {
-      type = with lib.types; attrsOf (submodule ({name, ...}: {
+      type = with lib.types; attrsOf (submodule ({ name, ... }: {
         options = {
           name = lib.mkOption {
             type = lib.types.str;
@@ -22,28 +23,32 @@ in {
           };
         };
       }));
-      default = {};
+      default = { };
     };
   };
 
-  config = lib.mkIf (cfg != {}) {
+  config = lib.mkIf (cfg != { }) {
     users = {
       mutableUsers = false;
-      users = let
-        makeUser = name: user: {
-          isNormalUser = true;
-          extraGroups = [ "wheel" "networkmanager" ];
-          initialHashedPassword = user.hashedPassword;
-        };
-      in lib.mapAttrs makeUser cfg;
+      users =
+        let
+          makeUser = name: user: {
+            isNormalUser = true;
+            extraGroups = [ "wheel" "networkmanager" "dialout" ];
+            initialHashedPassword = user.hashedPassword;
+          };
+        in
+        lib.mapAttrs makeUser cfg;
     };
     home-manager = {
       useGlobalPkgs = true;
       useUserPackages = true;
-      users = let
-        enabled = _: user: user.homeManagerConfig != null;
-        hmConfig = _: user: self.lib.import user.homeManagerConfig;
-      in lib.mapAttrs hmConfig (lib.filterAttrs enabled cfg);
+      users =
+        let
+          enabled = _: user: user.homeManagerConfig != null;
+          hmConfig = _: user: self.lib.import user.homeManagerConfig;
+        in
+        lib.mapAttrs hmConfig (lib.filterAttrs enabled cfg);
     };
   };
 }

@@ -49,6 +49,7 @@ in
     openssl
     psmisc
     ripgrep
+    screen
     w3m
     xclip
     zoom-us
