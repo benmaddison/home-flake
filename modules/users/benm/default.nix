@@ -122,7 +122,10 @@ in
       settings.window = { inherit (colors.primary) background foreground; };
     };
     neovim.enable = true;
-    rust.toolchains = [ "stable" ];
+    rust = {
+      enable = true;
+      toolchains = [ "stable" ];
+    };
     slack.enable = true;
     vifm = {
       enable = true;

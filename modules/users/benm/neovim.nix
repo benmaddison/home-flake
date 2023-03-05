@@ -171,6 +171,7 @@ in
                   -- Cargo run
                   vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', {})
                   vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', {})
+                  vim.keymap.set('n', '<leader>rc', '<cmd>FloatermNew --autoclose=0 cargo check<cr>', {})
                 end,
               },
             })
