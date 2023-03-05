@@ -34,7 +34,12 @@ in
         let
           makeUser = name: user: {
             isNormalUser = true;
-            extraGroups = [ "wheel" "networkmanager" "dialout" ];
+            extraGroups = [
+              "dialout"
+              "docker"
+              "networkmanager"
+              "wheel"
+            ];
             initialHashedPassword = user.hashedPassword;
           };
         in
