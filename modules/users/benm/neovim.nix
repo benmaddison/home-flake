@@ -478,10 +478,7 @@ in
         vim.o.signcolumn = 'yes'
         vim.keymap.set('n', '[g', vim.diagnostic.goto_prev, {})
         vim.keymap.set('n', ']g', vim.diagnostic.goto_next, {})
-        vim.api.nvim_create_autocmd({'CursorHold'}, {
-          pattern = '*',
-          callback = function() vim.diagnostic.open_float() end,
-        })
+        vim.keymap.set('n', '<C-M-K>', vim.diagnostic.open_float, {})
 
         vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
         EOF
