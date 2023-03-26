@@ -1,4 +1,4 @@
-{ self }: { config, pkgs, lib, ... }:
+{ self }: { config, pkgs, lib, osConfig, ... }:
 
 let
   system = pkgs.system;
@@ -13,6 +13,7 @@ let
   neovim = self.lib.import ./neovim.nix;
   nsxiv = self.lib.import ./nsxiv.nix;
   persistence = self.lib.import ./persistence.nix;
+  rofi = self.lib.import ./rofi.nix;
   rust = self.lib.import ./rust.nix;
   slack = self.lib.import ./slack.nix;
   vifm = self.lib.import ./vifm.nix;
@@ -33,6 +34,7 @@ in
     neovim
     nsxiv
     persistence
+    rofi
     rust
     slack
     vifm
@@ -126,6 +128,7 @@ in
       settings.window = { inherit (colors.primary) background foreground; };
     };
     neovim.enable = true;
+    rofi.enable = true;
     rust = {
       enable = true;
       toolchains = [ "stable" ];
@@ -329,13 +332,6 @@ in
   programs.jq.enable = true;
 
   programs.nix-index.enable = true;
-
-  programs.rofi = {
-    enable = true;
-    font = "SauceCodePro Nerd Font Mono Regular 10";
-    terminal = "${pkgs.alacritty}/bin/alacritty";
-    theme = "${self.packages.${system}.nord-rofi-theme}/nord.rasi";
-  };
 
   programs.ssh.enable = true;
 
