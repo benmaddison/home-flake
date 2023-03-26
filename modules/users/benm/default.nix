@@ -2,8 +2,11 @@
 
 let
   system = pkgs.system;
-  colors = self.lib.colors "nord" "hashHex";
+  colors = config.local.colorscheme.hashHex;
+
+  alacritty = self.lib.import ./alacritty.nix;
   azure = self.lib.import ./azure.nix;
+  colorscheme = self.lib.import ./colorscheme.nix;
   drawio = self.lib.import ./drawio.nix;
   gnome-keyring = self.lib.import ./gnome-keyring.nix;
   gpg = self.lib.import ./gpg.nix;
@@ -26,7 +29,9 @@ in
   home.stateVersion = "22.05";
 
   imports = [
+    alacritty
     azure
+    colorscheme
     drawio
     gnome-keyring
     gpg
@@ -82,7 +87,9 @@ in
         ".mozilla/firefox/default"
       ];
     };
+    alacritty.enable = true;
     azure.enable = true;
+    colorscheme.theme = "nord";
     drawio.enable = true;
     gnome-keyring.enable = true;
     gpg = {
@@ -141,27 +148,6 @@ in
       enable = true;
     };
     zoom.enable = true;
-  };
-
-  programs.alacritty = {
-    enable = true;
-    settings = {
-      colors = with colors; {
-        inherit primary normal bright dim;
-        search.matches = {
-          background = normal.cyan;
-          foreground = "CellBackground";
-        };
-        footer_bar = {
-          background = misc.nord2;
-          foreground = misc.nord4;
-        };
-      };
-      font = {
-        normal.family = "SauceCodePro Nerd Font Mono";
-        size = 10;
-      };
-    };
   };
 
   programs.autorandr =
@@ -562,7 +548,6 @@ in
           floating.criteria = [ ];
           gaps.inner = 6;
           modifier = "Mod4";
-          terminal = "${pkgs.alacritty}/bin/alacritty";
           menu = with config.programs.rofi; lib.mkIf enable "${package}/bin/rofi -show drun";
           startup = [
             {

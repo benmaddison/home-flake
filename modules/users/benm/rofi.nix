@@ -14,7 +14,6 @@ in
       enable = true;
       package = pkgs.rofi;
       font = "SauceCodePro Nerd Font Mono Regular 10";
-      terminal = "${pkgs.alacritty}/bin/alacritty";
       theme = "${self.packages.${system}.nord-rofi-theme}/nord.rasi";
     };
 
