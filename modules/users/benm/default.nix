@@ -13,6 +13,7 @@ let
   neovim = self.lib.import ./neovim.nix;
   nsxiv = self.lib.import ./nsxiv.nix;
   persistence = self.lib.import ./persistence.nix;
+  rclone = self.lib.import ./rclone.nix;
   rofi = self.lib.import ./rofi.nix;
   rust = self.lib.import ./rust.nix;
   slack = self.lib.import ./slack.nix;
@@ -34,6 +35,7 @@ in
     neovim
     nsxiv
     persistence
+    rclone
     rofi
     rust
     slack
@@ -128,6 +130,7 @@ in
       settings.window = { inherit (colors.primary) background foreground; };
     };
     neovim.enable = true;
+    rclone.enable = true;
     rofi.enable = true;
     rust = {
       enable = true;
