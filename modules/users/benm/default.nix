@@ -583,10 +583,10 @@ in
                 lib.listToAttrs (map (binding mod cmd) workspaces);
               workspaceNum = ws: "workspace number ${toString ws}";
 
-              directions =
-                { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
               navBindings = mod: cmd:
                 let
+                  directions =
+                    { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
                   binding = mod: cmd: key: direction:
                     lib.nameValuePair "${mod}+${key}" "${cmd direction}";
                 in
