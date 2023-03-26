@@ -39,17 +39,21 @@ in
   ];
 
   home.packages = with pkgs; [
+    bind.dnsutils
     du-dust
     fd
     file
     inetutils
     libreoffice
+    mtr
     nerdfonts
     nix-diff
     openssl
     psmisc
     ripgrep
     screen
+    socat
+    tokei
     w3m
     xclip
     zoom-us
