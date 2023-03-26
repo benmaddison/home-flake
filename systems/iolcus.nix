@@ -95,8 +95,6 @@ in
   systemd.services.systemd-networkd-wait-online.enable = false;
   services.resolved.dnssec = "true";
 
-  time.timeZone = "Africa/Johannesburg";
-
   local.users.benm.hashedPassword = "$6$Fjct9SMOV8uWIMrU$vTqfSYHFk/dgAyy0UTq/notTPcfmZiGpW9t3lVFmbB8aZnkDu5/0kJs8W5a3Uc1Edzh0mReXgk/iKdR3mPm8Z1";
 
   services.gnome.gnome-keyring.enable = true;
