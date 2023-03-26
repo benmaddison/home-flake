@@ -601,6 +601,19 @@ in
               moveContainer = direction: "move ${direction}";
               moveWorkspaceToOutput = direction:
                 "move workspace to output ${direction}";
+
+              audioBindings =
+                let
+                  pactl-sink = cmd: arg:
+                    let pactl = "${osConfig.hardware.pulseaudio.package}/bin/pactl";
+                    in "exec ${pactl} set-sink-${cmd} @DEFAULT_SINK@ ${arg}";
+                in
+                lib.optionalAttrs osConfig.hardware.pulseaudio.enable
+                  {
+                    "XF86AudioLowerVolume" = pactl-sink "volume" "-10%";
+                    "XF86AudioRaiseVolume" = pactl-sink "volume" "+10%";
+                    "XF86AudioMute" = pactl-sink "mute" "toggle";
+                  };
             in
             workspaceBindings "${mod}" focusWorkspace //
             workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
@@ -608,6 +621,7 @@ in
             navBindings "${mod}" moveFocus //
             navBindings "${mod}+Shift" moveContainer //
             navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
+            audioBindings //
             {
               "${mod}+Return" = "exec ${cfg.terminal}";
               # TODO: "${mod}+Shift+Return" -> launch browser
