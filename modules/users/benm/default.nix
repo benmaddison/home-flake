@@ -18,6 +18,7 @@ let
   rust = self.lib.import ./rust.nix;
   slack = self.lib.import ./slack.nix;
   vifm = self.lib.import ./vifm.nix;
+  zoom = self.lib.import ./zoom.nix;
 in
 {
   home.username = "benm";
@@ -40,6 +41,7 @@ in
     rust
     slack
     vifm
+    zoom
   ];
 
   home.packages = with pkgs; [
@@ -60,7 +62,6 @@ in
     tokei
     w3m
     xclip
-    zoom-us
   ];
 
   fonts.fontconfig.enable = true;
@@ -79,7 +80,6 @@ in
         ".config/keybase"
         ".local/share"
         ".mozilla/firefox/default"
-        ".zoom"
       ];
     };
     azure.enable = true;
@@ -140,6 +140,7 @@ in
     vifm = {
       enable = true;
     };
+    zoom.enable = true;
   };
 
   programs.alacritty = {
