@@ -14,6 +14,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # work around broken per-monitor DPI scaling
+    home.sessionVariables.WINIT_X11_SCALE_FACTOR = 1;
+
     programs.alacritty = {
       inherit (cfg) enable package;
       settings = {
@@ -27,10 +30,6 @@ in
             background = misc.nord2;
             foreground = misc.nord4;
           };
-        };
-        font = {
-          normal.family = "SauceCodePro Nerd Font Mono";
-          size = 8;
         };
       };
     };

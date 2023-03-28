@@ -8,6 +8,7 @@ let
   azure = self.lib.import ./azure.nix;
   colorscheme = self.lib.import ./colorscheme.nix;
   drawio = self.lib.import ./drawio.nix;
+  fonts = self.lib.import ./fonts.nix;
   gnome-keyring = self.lib.import ./gnome-keyring.nix;
   gpg = self.lib.import ./gpg.nix;
   insync = self.lib.import ./insync.nix;
@@ -33,6 +34,7 @@ in
     azure
     colorscheme
     drawio
+    fonts
     gnome-keyring
     gpg
     insync
@@ -57,7 +59,6 @@ in
     inetutils
     libreoffice
     mtr
-    nerdfonts
     nix-diff
     openssl
     psmisc
@@ -68,8 +69,6 @@ in
     w3m
     xclip
   ];
-
-  fonts.fontconfig.enable = true;
 
   local = {
     persistence = {
@@ -91,6 +90,11 @@ in
     azure.enable = true;
     colorscheme.theme = "nord";
     drawio.enable = true;
+    fonts = {
+      enable = true;
+      family = "SauceCodePro Nerd Font Mono";
+      size = 10.0;
+    };
     gnome-keyring.enable = true;
     gpg = {
       enable = true;
@@ -389,7 +393,6 @@ in
       recolor-darkcolor = normal.white;
       recolor = true;
       recolor-keephue = false;
-      font = "SauceCodePro Nerd Font Mono Regular 10";
       adjust-open = "best-fit";
       incremental-search = true;
       page-padding = 6;
@@ -494,162 +497,153 @@ in
   xresources.path = "${config.xdg.configHome}/Xresources";
   xsession = {
     enable = true;
-    windowManager.i3 =
-      let
-        fonts = {
-          names = [ "SauceCodePro Nerd Font" ];
-          style = "Regular";
-          size = 12.0;
-        };
-      in
-      {
-        enable = true;
-        package = pkgs.i3-gaps;
-        config = {
-          inherit fonts;
-          bars = [
-            {
-              inherit fonts;
-              statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-default.toml";
-              colors = with colors; {
-                inherit (primary) background;
-                separator = bright.black;
-                statusline = bright.black;
-                focusedWorkspace = {
-                  background = normal.blue;
-                  border = bright.blue;
-                  text = bright.white;
-                };
-                activeWorkspace = with bright; {
-                  background = black;
-                  border = black;
-                  text = white;
-                };
-                inactiveWorkspace = with normal; {
-                  background = black;
-                  border = black;
-                  text = white;
-                };
-                urgentWorkspace = with bright; {
-                  background = black;
-                  border = red;
-                  text = red;
-                };
-                bindingMode = with bright; {
-                  background = black;
-                  border = yellow;
-                  text = yellow;
-                };
+    windowManager.i3 = {
+      enable = true;
+      package = pkgs.i3-gaps;
+      config = {
+        bars = [
+          {
+            inherit (config.xsession.windowManager.i3.config) fonts;
+            statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ${config.xdg.configHome}/i3status-rust/config-default.toml";
+            colors = with colors; {
+              inherit (primary) background;
+              separator = bright.black;
+              statusline = bright.black;
+              focusedWorkspace = {
+                background = normal.blue;
+                border = bright.blue;
+                text = bright.white;
               };
-            }
-          ];
-          colors = with colors; { inherit (primary) background; };
-          defaultWorkspace = "workspace number 1";
-          floating.criteria = [ ];
-          gaps.inner = 6;
-          modifier = "Mod4";
-          menu = with config.programs.rofi; lib.mkIf enable "${package}/bin/rofi -show drun";
-          startup = [
-            {
-              command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
-              notification = false;
-            }
-          ];
-          keybindings =
-            let
-              cfg = config.xsession.windowManager.i3.config;
-              mod = cfg.modifier;
-              alt = "Mod1";
-
-              # TODO: "Ctrl+[0..9] -> workspaces 11 - 20
-              workspaces = [ 1 2 3 4 5 6 7 8 9 10 ];
-              workspaceBindings = mod: cmd:
-                let
-                  key = ws: toString (lib.mod ws 10);
-                  binding = mod: cmd: ws:
-                    lib.nameValuePair "${mod}+${key ws}" "${cmd ws}";
-                in
-                lib.listToAttrs (map (binding mod cmd) workspaces);
-              workspaceNum = ws: "workspace number ${toString ws}";
-
-              navBindings = mod: cmd:
-                let
-                  directions =
-                    { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
-                  binding = mod: cmd: key: direction:
-                    lib.nameValuePair "${mod}+${key}" "${cmd direction}";
-                in
-                lib.mapAttrs' (binding mod cmd) directions;
-
-              focusWorkspace = workspaceNum;
-              moveContainerToWorkspace = ws:
-                "move container to ${workspaceNum ws}";
-              followContainerToWorkspace = ws:
-                "${moveContainerToWorkspace ws}; ${focusWorkspace ws}";
-              moveFocus = direction: "focus ${direction}";
-              moveContainer = direction: "move ${direction}";
-              moveWorkspaceToOutput = direction:
-                "move workspace to output ${direction}";
-
-              audioBindings =
-                let
-                  pactl-sink = cmd: arg:
-                    let pactl = "${osConfig.hardware.pulseaudio.package}/bin/pactl";
-                    in "exec ${pactl} set-sink-${cmd} @DEFAULT_SINK@ ${arg}";
-                in
-                lib.optionalAttrs osConfig.hardware.pulseaudio.enable
-                  {
-                    "XF86AudioLowerVolume" = pactl-sink "volume" "-10%";
-                    "XF86AudioRaiseVolume" = pactl-sink "volume" "+10%";
-                    "XF86AudioMute" = pactl-sink "mute" "toggle";
-                  };
-            in
-            workspaceBindings "${mod}" focusWorkspace //
-            workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
-            workspaceBindings "${mod}+${alt}" followContainerToWorkspace //
-            navBindings "${mod}" moveFocus //
-            navBindings "${mod}+Shift" moveContainer //
-            navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
-            audioBindings //
-            {
-              "${mod}+Return" = "exec ${cfg.terminal}";
-              # TODO: "${mod}+Shift+Return" -> launch browser
-              "${mod}+space" = "exec ${cfg.menu}";
-              # TODO: "${mod}+Shift+space" -> cmd launcher
-              # TODO: "${mod}+Ctrl+space" -> window launcher
-              # TODO: "${mod}+${alt}+space" -> file launcher
-              # TODO: "${mod}+Shift+question" -> help pop-up
-              # TODO: "${mod}+equal" -> calulator
-              # TODO: "${mod}+z" -> fuzzy finder
-              "${mod}+q" = "[con_id=\"__focused__\"] kill";
-
-              "${mod}+Tab" = "workspace next";
-              "${mod}+Shift+Tab" = "workspace previous";
-
-              # TODO: scratchpad move/show
-
-              "${mod}+backslash" = "[urgent=oldest] focus";
-
-              "${mod}+BackSpace" = "split toggle";
-              "${mod}+f" = "fullscreen toggle";
-              "${mod}+t" = "layout toggle tabbed splith splitv";
-              "${mod}+Shift+f" = "floating toggle";
-              "${mod}+Shift+t" = "focus mode_toggle";
-
-              "${mod}+Escape" = "exec systemctl start physlock.service";
-              "${mod}+Shift+c" = "reload";
-              "${mod}+Shift+r" = "restart";
-              "${mod}+Shift+q" = "exec i3-msg exit";
-
-              # TODO: "${mod}+grave -> show tray
-              # TODO: "${mod}+Shift+v -> vpn toggle
-              # TODO: "${mod}+n -> notifications
-              # TODO: "${mod}+Shift+n -> file manager
-
-              "${mod}+r" = "mode resize";
+              activeWorkspace = with bright; {
+                background = black;
+                border = black;
+                text = white;
+              };
+              inactiveWorkspace = with normal; {
+                background = black;
+                border = black;
+                text = white;
+              };
+              urgentWorkspace = with bright; {
+                background = black;
+                border = red;
+                text = red;
+              };
+              bindingMode = with bright; {
+                background = black;
+                border = yellow;
+                text = yellow;
+              };
             };
-        };
+          }
+        ];
+        colors = with colors; { inherit (primary) background; };
+        defaultWorkspace = "workspace number 1";
+        floating.criteria = [ ];
+        gaps.inner = 6;
+        modifier = "Mod4";
+        menu = with config.programs.rofi; lib.mkIf enable "${package}/bin/rofi -show drun";
+        startup = [
+          {
+            command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+            notification = false;
+          }
+        ];
+        keybindings =
+          let
+            cfg = config.xsession.windowManager.i3.config;
+            mod = cfg.modifier;
+            alt = "Mod1";
+
+            # TODO: "Ctrl+[0..9] -> workspaces 11 - 20
+            workspaces = [ 1 2 3 4 5 6 7 8 9 10 ];
+            workspaceBindings = mod: cmd:
+              let
+                key = ws: toString (lib.mod ws 10);
+                binding = mod: cmd: ws:
+                  lib.nameValuePair "${mod}+${key ws}" "${cmd ws}";
+              in
+              lib.listToAttrs (map (binding mod cmd) workspaces);
+            workspaceNum = ws: "workspace number ${toString ws}";
+
+            navBindings = mod: cmd:
+              let
+                directions =
+                  { "h" = "left"; "j" = "down"; "k" = "up"; "l" = "right"; };
+                binding = mod: cmd: key: direction:
+                  lib.nameValuePair "${mod}+${key}" "${cmd direction}";
+              in
+              lib.mapAttrs' (binding mod cmd) directions;
+
+            focusWorkspace = workspaceNum;
+            moveContainerToWorkspace = ws:
+              "move container to ${workspaceNum ws}";
+            followContainerToWorkspace = ws:
+              "${moveContainerToWorkspace ws}; ${focusWorkspace ws}";
+            moveFocus = direction: "focus ${direction}";
+            moveContainer = direction: "move ${direction}";
+            moveWorkspaceToOutput = direction:
+              "move workspace to output ${direction}";
+
+            audioBindings =
+              let
+                pactl-sink = cmd: arg:
+                  let pactl = "${osConfig.hardware.pulseaudio.package}/bin/pactl";
+                  in "exec ${pactl} set-sink-${cmd} @DEFAULT_SINK@ ${arg}";
+              in
+              lib.optionalAttrs osConfig.hardware.pulseaudio.enable
+                {
+                  "XF86AudioLowerVolume" = pactl-sink "volume" "-10%";
+                  "XF86AudioRaiseVolume" = pactl-sink "volume" "+10%";
+                  "XF86AudioMute" = pactl-sink "mute" "toggle";
+                };
+          in
+          workspaceBindings "${mod}" focusWorkspace //
+          workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
+          workspaceBindings "${mod}+${alt}" followContainerToWorkspace //
+          navBindings "${mod}" moveFocus //
+          navBindings "${mod}+Shift" moveContainer //
+          navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
+          audioBindings //
+          {
+            "${mod}+Return" = "exec ${cfg.terminal}";
+            # TODO: "${mod}+Shift+Return" -> launch browser
+            "${mod}+space" = "exec ${cfg.menu}";
+            # TODO: "${mod}+Shift+space" -> cmd launcher
+            # TODO: "${mod}+Ctrl+space" -> window launcher
+            # TODO: "${mod}+${alt}+space" -> file launcher
+            # TODO: "${mod}+Shift+question" -> help pop-up
+            # TODO: "${mod}+equal" -> calulator
+            # TODO: "${mod}+z" -> fuzzy finder
+            "${mod}+q" = "[con_id=\"__focused__\"] kill";
+
+            "${mod}+Tab" = "workspace next";
+            "${mod}+Shift+Tab" = "workspace previous";
+
+            # TODO: scratchpad move/show
+
+            "${mod}+backslash" = "[urgent=oldest] focus";
+
+            "${mod}+BackSpace" = "split toggle";
+            "${mod}+f" = "fullscreen toggle";
+            "${mod}+t" = "layout toggle tabbed splith splitv";
+            "${mod}+Shift+f" = "floating toggle";
+            "${mod}+Shift+t" = "focus mode_toggle";
+
+            "${mod}+Escape" = "exec systemctl start physlock.service";
+            "${mod}+Shift+c" = "reload";
+            "${mod}+Shift+r" = "restart";
+            "${mod}+Shift+q" = "exec i3-msg exit";
+
+            # TODO: "${mod}+grave -> show tray
+            # TODO: "${mod}+Shift+v -> vpn toggle
+            # TODO: "${mod}+n -> notifications
+            # TODO: "${mod}+Shift+n -> file manager
+
+            "${mod}+r" = "mode resize";
+          };
       };
+    };
     profilePath = ".config/sx/profile";
     profileExtra = ''
       ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd --all

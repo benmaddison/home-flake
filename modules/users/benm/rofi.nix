@@ -13,7 +13,6 @@ in
     programs.rofi = {
       enable = true;
       package = pkgs.rofi;
-      font = "SauceCodePro Nerd Font Mono Regular 10";
       theme = "${self.packages.${system}.nord-rofi-theme}/nord.rasi";
     };
 
