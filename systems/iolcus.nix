@@ -170,6 +170,8 @@ in
 
   programs.fuse.userAllowOther = true;
 
+  programs.light.enable = true;
+
   programs.neovim = {
     enable = true;
     defaultEditor = true;

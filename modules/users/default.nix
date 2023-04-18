@@ -38,6 +38,7 @@ in
               "dialout"
               "docker"
               "networkmanager"
+              "video"
               "wheel"
             ];
             initialHashedPassword = user.hashedPassword;
