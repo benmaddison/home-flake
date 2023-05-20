@@ -153,17 +153,22 @@ in
             }
 
             lspconfig.rust_analyzer.setup {
+              cmd = { 'rustup', 'run', 'nightly', 'rust-analyzer'},
               on_attach = function(client, bufnr)
                 lsp_on_attach(client, bufnr)
                 local opts = { noremap = true, silent = true, buffer = bufnr }
                 vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', opts)
                 vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', opts)
-                vim.keymap.set('n', '<leader>rc', '<cmd>FloatermNew --autoclose=0 cargo check<cr>', opts)
+                vim.keymap.set('n', '<leader>rc', '<cmd>FloatermNew --autoclose=0 cargo check --all-features --all-targets && cargo clippy --all-features --all-targets<cr>', opts)
               end,
               capabilities = lsp_capabilities,
               settings = {
                 ['rust-analyzer'] = {
                   cargo = {
+                    features = 'all',
+                  },
+                  check = {
+                    command = 'clippy',
                     features = 'all',
                   },
                 },
