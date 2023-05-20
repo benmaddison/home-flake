@@ -52,6 +52,7 @@ in
   ];
 
   home.packages = with pkgs; [
+    bgpq4
     bind.dnsutils
     du-dust
     fd
