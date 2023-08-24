@@ -57,6 +57,9 @@ in
     du-dust
     fd
     file
+    gnucash
+    hexyl
+    hyperfine
     inetutils
     libreoffice
     mtr
@@ -67,6 +70,7 @@ in
     screen
     socat
     tokei
+    unzip
     w3m
     xclip
   ];
