@@ -62,6 +62,7 @@ in
     hyperfine
     inetutils
     libreoffice
+    linuxPackages.perf
     mtr
     nix-diff
     openssl
