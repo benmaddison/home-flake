@@ -158,6 +158,11 @@ in
           owner = "benmaddison";
           repo = "home-flake";
         };
+        slides-template.to = {
+          type = "github";
+          owner = "benmaddison";
+          repo = "slides-template";
+        };
       };
   };
   nixpkgs.config =
