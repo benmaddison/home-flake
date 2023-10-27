@@ -312,12 +312,27 @@ in
           block = "battery";
         }
         {
+          block = "sound";
+        }
+        {
+          block = "backlight";
+        }
+        {
           block = "time";
           format = " $icon $timestamp.datetime(f:'%d-%b %R %:::z') ";
         }
       ];
       icons = "material-nf";
-      theme = "nord-dark";
+      settings = {
+        theme = {
+          theme = "nord-dark";
+          overrides = {
+            separator = "┃";
+            separator_bg = colors.primary.background;
+            separator_fg = colors.normal.blue;
+          };
+        };
+      };
     };
   };
 
