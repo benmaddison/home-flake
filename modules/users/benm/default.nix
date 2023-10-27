@@ -612,6 +612,12 @@ in
                   "XF86AudioRaiseVolume" = pactl-sink "volume" "+10%";
                   "XF86AudioMute" = pactl-sink "mute" "toggle";
                 };
+            backlightBindings =
+              let light = args: "exec ${pkgs.light}/bin/light ${args}"; in
+              {
+                "XF86MonBrightnessDown" = light "-U 10";
+                "XF86MonBrightnessUp" = light "-A 10";
+              };
           in
           workspaceBindings "${mod}" focusWorkspace //
           workspaceBindings "${mod}+Shift" moveContainerToWorkspace //
@@ -620,6 +626,7 @@ in
           navBindings "${mod}+Shift" moveContainer //
           navBindings "${mod}+Ctrl" moveWorkspaceToOutput //
           audioBindings //
+          backlightBindings //
           {
             "${mod}+Return" = "exec ${cfg.terminal}";
             # TODO: "${mod}+Shift+Return" -> launch browser
