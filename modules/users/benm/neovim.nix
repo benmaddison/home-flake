@@ -464,6 +464,39 @@ in
             EOF
           '';
         }
+
+        lualine-lsp-progress
+        {
+          plugin = lualine-nvim;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('lualine').setup {
+              options = {
+                theme = 'onenord',
+                section_separators = "",
+                component_separators = '┃',
+                sections = {
+                  lualine_c = {'filename', path = 1, newfile_status = true},
+                },
+              },
+            }
+            EOF
+          '';
+        }
+
+        {
+          plugin = fidget-nvim;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('fidget').setup {
+              window = {
+                blend = 0,
+                border = 'single',
+              },
+            }
+            EOF
+          '';
+        }
       ];
 
       extraConfig = self.lib.code "vim" ''
@@ -484,6 +517,7 @@ in
         vim.o.tabstop = 4
         vim.o.updatetime = 300
         vim.o.wildmenu = true
+        vim.o.cmdheight = 0
 
         vim.o.foldmethod = 'expr'
         vim.o.foldenable = false
