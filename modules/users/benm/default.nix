@@ -329,7 +329,7 @@ in
           overrides = {
             separator = "┃";
             separator_bg = colors.primary.background;
-            separator_fg = colors.normal.blue;
+            separator_fg = colors.bright.black;
           };
         };
       };
