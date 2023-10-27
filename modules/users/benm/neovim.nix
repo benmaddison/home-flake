@@ -497,6 +497,16 @@ in
             EOF
           '';
         }
+
+        nvim-web-devicons
+        {
+          plugin = octo-nvim;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('octo').setup {}
+            EOF
+          '';
+        }
       ];
 
       extraConfig = self.lib.code "vim" ''
