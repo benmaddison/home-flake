@@ -302,9 +302,7 @@ in
       blocks = [
         {
           block = "memory";
-          display_type = "memory";
-          format_mem = "{mem_used_percents}";
-          format_swap = "{swap_used_percents}";
+          format = " $icon $mem_used_percents.eng(w:1) ";
         }
         {
           block = "cpu";
@@ -315,11 +313,10 @@ in
         }
         {
           block = "time";
-          interval = 60;
-          format = "%a %d/%m %R";
+          format = " $icon $timestamp.datetime(f:'%d-%b %R %:::z') ";
         }
       ];
-      icons = "awesome";
+      icons = "material-nf";
       theme = "nord-dark";
     };
   };
