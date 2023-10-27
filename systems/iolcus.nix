@@ -2,7 +2,7 @@
 
 let
   unfreePkgs = [ "morgen" "zoom" "slack" ];
-  insecurePkgs = [ "electron-15.5.2" ];
+  insecurePkgs = [ "electron-22.3.27" ];
 in
 {
   imports = with self.inputs; [
@@ -92,7 +92,7 @@ in
   networking.networkmanager.enable = true;
   networking.search = [ "wolcomm.net" ];
   networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
-  systemd.services.systemd-networkd-wait-online.enable = false;
+  systemd.services.systemd-networkd-wait-online.enable = lib.mkForce false;
   services.resolved.dnssec = "true";
 
   local.users.benm.hashedPassword = "$6$Fjct9SMOV8uWIMrU$vTqfSYHFk/dgAyy0UTq/notTPcfmZiGpW9t3lVFmbB8aZnkDu5/0kJs8W5a3Uc1Edzh0mReXgk/iKdR3mPm8Z1";
