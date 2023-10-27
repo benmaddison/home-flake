@@ -16,8 +16,9 @@ in
     home.packages = [ cfg.package ];
     local.persistence = {
       files = [
+        ".config/zoom.conf"
         ".config/zoomus.conf"
-        ".config/Unkown Organization/zoom.conf"
+        ".config/Unknown Organization/zoom.conf"
       ];
       directories = [ ".zoom" ];
     };
