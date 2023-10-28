@@ -47,6 +47,7 @@ in
       vimAlias = true;
       vimdiffAlias = true;
       plugins = with pkgs.vimPlugins; [
+        nvim-web-devicons
 
         playground
         nvim-ts-context-commentstring
@@ -309,6 +310,7 @@ in
 
         telescope-fzf-native-nvim
         telescope-file-browser-nvim
+        telescope-lsp-handlers-nvim
         {
           plugin = telescope-nvim;
           config = self.lib.code "vim" ''
@@ -338,6 +340,7 @@ in
                     n = {
                       ["h"] = telescope.extensions.file_browser.actions.goto_parent_dir,
                       ["<space>"] = actions.toggle_selection,
+                      ["/"] = { "i", type = 'command' },
                     },
                   },
                 },
@@ -345,12 +348,15 @@ in
             }
             telescope.load_extension('fzf')
             telescope.load_extension('file_browser')
+            telescope.load_extension('lsp_handlers')
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>pp', builtin.find_files, {})
             vim.keymap.set('n', '<leader>pf', builtin.live_grep, {})
             vim.keymap.set('n', '<leader>pb', builtin.buffers, {})
+            vim.keymap.set('n', '<leader>pB', builtin.current_buffer_fuzzy_find, {})
             vim.keymap.set('n', '<leader>ph', builtin.help_tags, {})
             vim.keymap.set('n', '<leader>pF', builtin.filetypes, {})
+            vim.keymap.set('n', '<leader>pk', builtin.keymaps, {})
             vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
             vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
             vim.keymap.set('n', '<leader>f', telescope.extensions.file_browser.file_browser, {})
@@ -474,7 +480,6 @@ in
           '';
         }
 
-        lualine-lsp-progress
         {
           plugin = lualine-nvim;
           config = self.lib.code "vim" ''
@@ -489,6 +494,7 @@ in
                 },
               },
             }
+            vim.o.cmdheight = 0
             EOF
           '';
         }
@@ -507,7 +513,6 @@ in
           '';
         }
 
-        nvim-web-devicons
         {
           plugin = octo-nvim;
           config = self.lib.code "vim" ''
@@ -536,7 +541,6 @@ in
         vim.o.tabstop = 4
         vim.o.updatetime = 300
         vim.o.wildmenu = true
-        vim.o.cmdheight = 0
 
         vim.o.foldmethod = 'expr'
         vim.o.foldenable = false
