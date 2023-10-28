@@ -216,6 +216,14 @@ in
         cmp-nvim-lsp-signature-help
         cmp-nvim-lua
         {
+          plugin = cmp-git;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            require('cmp_git').setup()
+            EOF
+          '';
+        }
+        {
           plugin = nvim-cmp;
           config = self.lib.code "vim" ''
             lua <<EOF
@@ -254,6 +262,7 @@ in
                 { name = 'nvim_lsp_signature_help'},
                 { name = 'nvim_lua'},
                 { name = 'luasnip' },
+                { name = 'git' },
                 { name = 'path' },
                 { name = 'buffer' },
               },
