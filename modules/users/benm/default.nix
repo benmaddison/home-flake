@@ -552,7 +552,22 @@ in
             };
           }
         ];
-        colors = with colors; { inherit (primary) background; };
+        colors = with colors; let
+          default = {
+            inherit (primary) background;
+            text = primary.foreground;
+            border = normal.black;
+            childBorder = normal.black;
+            indicator = normal.blue;
+          }; in
+        {
+          inherit (primary) background;
+          focused = default // { childBorder = bright.black; };
+          focusedInactive = default;
+          unfocused = default;
+          urgent = default // { childBorder = normal.red; };
+          placeholder = default;
+        };
         defaultWorkspace = "workspace number 1";
         floating.criteria = [ ];
         gaps.inner = 6;
