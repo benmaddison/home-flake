@@ -49,6 +49,35 @@ in
       plugins = with pkgs.vimPlugins; [
         nvim-web-devicons
 
+        {
+          plugin = which-key-nvim;
+          config = self.lib.code "vim" ''
+            lua <<EOF
+            wk = require('which-key')
+            wk.setup {
+              operators = {
+                ys = "Create surround",
+                cs = "Change surround",
+                ds = "Delete surround",
+                gc = "Line comment",
+                gb = "Block comment",
+              }
+            }
+            wk.register({
+              ['<C-h>'] = { '<C-w>h', "Move to left window"},
+              ['<C-j>'] = { '<C-w>j', "Move to down window"},
+              ['<C-k>'] = { '<C-w>k', "Move to up window"},
+              ['<C-l>'] = { '<C-w>l', "Move to right window"},
+              ['[g'] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
+              [']g'] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
+              ['<C-M-K>'] = { function() vim.diagnostic.open_float() end, "Show diagnostic" },
+              ['<leader>/'] = { '<cmd>let @/ = ""<cr>', "Clear search pattern register" },
+              ['<leader>?'] = { '<cmd>WhichKey<cr>', "Open which-key hints" },
+            })
+            EOF
+          '';
+        }
+
         playground
         nvim-ts-context-commentstring
         {
@@ -98,14 +127,20 @@ in
             lua <<EOF
             lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
             lsp_on_attach = function(client, bufnr)
-              local opts = { noremap = true, silent = true, buffer = bufnr }
-              vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-              vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-              vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
-              vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-              vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-              vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-              vim.keymap.set('n', '<M-k>', vim.lsp.buf.signature_help, opts)
+              wk.register({
+                g = {
+                  name = '+goto',
+                  d = { function() vim.lsp.buf.definition() end, "LSP definition" },
+                  D = { function() vim.lsp.buf.declaration() end, "LSP declaration" },
+                  t = { function() vim.lsp.buf.type_definition() end, "LSP type definition" },
+                  i = { function() vim.lsp.buf.implementation() end, "LSP implementations" },
+                  r = { function() vim.lsp.buf.references() end, "LSP references" },
+                },
+                K = { function() vim.lsp.buf.hover() end, "Show LSP information" },
+                ['<M-k>'] = { function() vim.lsp.buf.signature_help() end, "Show LSP signature help" },
+              }, {
+                buffer = bufnr,
+              })
               vim.api.nvim_create_autocmd({'BufWritePre'}, {
                 pattern = '*',
                 callback = function() vim.lsp.buf.format() end,
@@ -126,14 +161,15 @@ in
               capabilities = lsp_capabilities,
               on_init = function(client)
                 local path = client.workspace_folders[1].name
-                if not vim.loop.fs_stat(path..'/.luarc.json') and not vim.loop.fs_stat(path..'/.luarc.jsonc') then
+                if
+                  not vim.loop.fs_stat(path..'/.luarc.json') and
+                  not vim.loop.fs_stat(path..'/.luarc.jsonc')
+                then
                   client.config.settings = vim.tbl_deep_extend('force', client.config.settings, {
                     Lua = {
                       runtime = {
-                        -- Tell the language server which version of Lua you're using
                         version = 'LuaJIT'
                       },
-                      -- Make the server aware of Neovim runtime files
                       workspace = {
                         checkThirdParty = false,
                         library = {
@@ -159,10 +195,15 @@ in
               cmd = { 'rustup', 'run', 'nightly', 'rust-analyzer'},
               on_attach = function(client, bufnr)
                 lsp_on_attach(client, bufnr)
-                local opts = { noremap = true, silent = true, buffer = bufnr }
-                vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', opts)
-                vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', opts)
-                vim.keymap.set('n', '<leader>rc', '<cmd>FloatermNew --autoclose=0 cargo check --all-features --all-targets && cargo clippy --all-features --all-targets<cr>', opts)
+                wk.register({
+                  name = '+rust-cargo',
+                  r = { '<cmd>FloatermNew --autoclose=0 cargo run<cr>', "cargo run" },
+                  t = { '<cmd>FloatermNew --autoclose=0 cargo test --all --all-features<cr>', "cargo test" },
+                  c = { '<cmd>FloatermNew --autoclose=0 cargo clippy --all --all-features --all-targets<cr>', "cargo clippy" },
+                }, {
+                  prefix = '<leader>r',
+                  buffer = bufnr,
+                })
               end,
               capabilities = lsp_capabilities,
               settings = {
@@ -273,6 +314,7 @@ in
                   menu = ({
                     nvim_lsp = '[lsp]',
                     luasnip = '[luasnip]',
+                    git = '[github]',
                     path = '[path]',
                     buffer = '[buffer]',
                     cmdline = '[cmd]',
@@ -350,16 +392,24 @@ in
             telescope.load_extension('file_browser')
             telescope.load_extension('lsp_handlers')
             local builtin = require('telescope.builtin')
-            vim.keymap.set('n', '<leader>pp', builtin.find_files, {})
-            vim.keymap.set('n', '<leader>pf', builtin.live_grep, {})
-            vim.keymap.set('n', '<leader>pb', builtin.buffers, {})
-            vim.keymap.set('n', '<leader>pB', builtin.current_buffer_fuzzy_find, {})
-            vim.keymap.set('n', '<leader>ph', builtin.help_tags, {})
-            vim.keymap.set('n', '<leader>pF', builtin.filetypes, {})
-            vim.keymap.set('n', '<leader>pk', builtin.keymaps, {})
-            vim.keymap.set('n', '<leader>pP', builtin.builtin, {})
-            vim.keymap.set('n', '<leader>g', builtin.diagnostics, {})
-            vim.keymap.set('n', '<leader>f', telescope.extensions.file_browser.file_browser, {})
+            wk.register({
+              p = {
+                name = '+pick',
+                p = { function() builtin.find_files() end, "Workspace files" },
+                f = { function() builtin.live_grep() end, "Workspace line grep" },
+                b = { function() builtin.buffers() end, "Open buffers" },
+                B = { function() builtin.current_buffer_fuzzy_find() end, "Current buffer line grep" },
+                s = { function() builtin.lsp_dynamic_workspace_symbols() end, "Workspace LSP symbols" },
+                h = { function() builtin.help_tags() end, "Help tags" },
+                F = { function() builtin.filetypes() end, "File types" },
+                k = { function() builtin.keymaps() end, "Keymaps" },
+                P = { function() builtin.builtin() end, "Built-in telescope pickers" },
+              },
+              g = { function() builtin.diagnostics() end, "Show diagnostics" },
+              f = { function() telescope.extensions.file_browser.file_browser() end, "Show file browser" },
+            }, {
+              prefix = '<leader>',
+            })
             -- attachment-picker
             vim.api.nvim_create_autocmd({'FileType'}, {
               pattern = 'mail',
@@ -401,7 +451,12 @@ in
                     end
                   }
                 end
-                vim.keymap.set('n', '<leader>a', picker, {})
+                wk.register({
+                  a = { function() picker() end, "Add attachments" },
+                }, {
+                  buffer = true,
+                  prefix = '<leader>',
+                })
               end,
             })
             EOF
@@ -430,8 +485,15 @@ in
           plugin = vim-floaterm;
           config = self.lib.code "vim" ''
             lua <<EOF
-            vim.keymap.set('n', '<leader>tt', '<cmd>FloatermNew<cr>', {})
-            vim.keymap.set('n', '<leader>tn', '<cmd>FloatermNew nix repl<cr>', {})
+            wk.register({
+              t = {
+                name = '+terminal',
+                t = { '<cmd>FloatermNew<cr>', "Shell" },
+                n = { '<cmd>FloatermNew nix repl<cr>', "nix repl" },
+              },
+            }, {
+              prefix = '<leader>',
+            })
             EOF
           '';
         }
@@ -443,37 +505,46 @@ in
             require('gitsigns').setup{
               on_attach = function(bufnr)
                 local gs = package.loaded.gitsigns
-
-                local function map(mode, l, r, opts)
-                  opts = opts or {}
-                  opts.buffer = bufnr
-                  vim.keymap.set(mode, l, r, opts)
-                end
-
-                -- Navigation
-                map('n', ']c', function()
-                  if vim.wo.diff then return ']c' end
-                  vim.schedule(function() gs.next_hunk() end)
-                  return '<Ignore>'
-                end, {expr=true})
-
-                map('n', '[c', function()
-                  if vim.wo.diff then return '[c' end
-                  vim.schedule(function() gs.prev_hunk() end)
-                  return '<Ignore>'
-                end, {expr=true})
-
-                -- Actions
-                map({'n', 'v'}, '<leader>hs', '<cmd>Gitsigns stage_hunk<cr>')
-                map({'n', 'v'}, '<leader>hr', '<cmd>Gitsigns reset_hunk<cr>')
-                map('n', '<leader>hS', gs.stage_buffer)
-                map('n', '<leader>hu', gs.undo_stage_hunk)
-                map('n', '<leader>hR', gs.reset_buffer)
-                map('n', '<leader>hp', gs.preview_hunk)
-                map('n', '<leader>hb', function() gs.blame_line{full=true} end)
-                map('n', '<leader>hB', gs.toggle_current_line_blame)
-                map('n', '<leader>hd', gs.diffthis)
-                map('n', '<leader>hD', gs.toggle_deleted)
+                wk.register({
+                  ['[c'] = {
+                    function()
+                      if vim.wo.diff then return '[c' end
+                      vim.schedule(function() gs.prev_hunk() end)
+                      return '<Ignore>'
+                    end,
+                    "Previous unstaged hunk",
+                    expr = true,
+                  },
+                  [']c'] = {
+                    function()
+                      if vim.wo.diff then return ']c' end
+                      vim.schedule(function() gs.next_hunk() end)
+                      return '<Ignore>'
+                    end,
+                    "Next unstaged hunk",
+                    expr = true,
+                  },
+                }, {
+                  buffer = bufnr,
+                })
+                wk.register({
+                  h = {
+                    name = '+git',
+                    s = { '<cmd>Gitsigns stage_hunk<cr>', "Stage hunk", mode = {'n', 'v'} },
+                    r = { '<cmd>Gitsigns reset_hunk<cr>', "Reset hunk", mode = {'n', 'v'} },
+                    S = { function() gs.stage_buffer() end, "Stage buffer" },
+                    R = { function() gs.reset_buffer() end, "Reset buffer" },
+                    u = { function() gs.undo_stage_hunk() end, "Undo stage hunk" },
+                    p = { function() gs.preview_hunk() end, "Preview hunk" },
+                    b = { function() gs.blame_line({full=true}) end, "Show blame" },
+                    B = { function() gs.toggle_current_line_blame() end, "Toggle blame hints" },
+                    d = { function() gs.diffthis() end, "Diff current buffer" },
+                    D = { function() gs.toggle_deleted() end, "Toggle deleted" },
+                  }
+                }, {
+                  prefix = '<leader>',
+                  buffer = bufnr,
+                })
               end
             }
             EOF
@@ -550,22 +621,12 @@ in
         vim.cmd.filetype('plugin indent on')
         vim.cmd.syntax('enable')
 
-        vim.keymap.set('n', '<C-h>', '<C-w>h', {})
-        vim.keymap.set('n', '<C-j>', '<C-w>j', {})
-        vim.keymap.set('n', '<C-k>', '<C-w>k', {})
-        vim.keymap.set('n', '<C-l>', '<C-w>l', {})
-
         vim.diagnostic.config({
           virtual_text = false,
           signs = true,
           update_in_insert = true,
         })
         vim.o.signcolumn = 'yes'
-        vim.keymap.set('n', '[g', vim.diagnostic.goto_prev, {})
-        vim.keymap.set('n', ']g', vim.diagnostic.goto_next, {})
-        vim.keymap.set('n', '<C-M-K>', vim.diagnostic.open_float, {})
-
-        vim.keymap.set('n', '<leader>/', '<cmd>let @/ = ""<cr>', {})
         EOF
       '';
     };
