@@ -3,7 +3,7 @@
 let
   cfg = config.local.rclone;
   configPath = "${config.xdg.configHome}/rclone/rclone.conf";
-  rclone-passwd = pkgs.writeShellScriptBin "rclone-passwd" (self.lib.code "bash" ''
+  rclone-passwd = pkgs.writeShellScriptBin "rclone-passwd" /* bash  */ ''
     set -euo pipefail
 
     secret_tool="${pkgs.libsecret}/bin/secret-tool"
@@ -31,9 +31,9 @@ let
       *)
         fail "unknown sub-command";;
     esac
-  '');
+  '';
   rcloneWrapped = pkgs.rclone.overrideAttrs (out: {
-    postFixup = self.lib.code "bash" ''
+    postFixup = /* bash */ ''
       wrapProgram $out/bin/rclone \
         --run 'export RCLONE_CONFIG_PASS="$(${rclone-passwd}/bin/rclone-passwd fetch)"'
     '';

@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-n/3O6WdMUImCcrS5UBXoWHZevYhmC8WkA+u+ETU2m1M=";
   };
 
-  installPhase = self.lib.code "bash" ''
+  installPhase = /* bash */ ''
     mkdir -p $out
     cp nord.rasi $out/
   '';

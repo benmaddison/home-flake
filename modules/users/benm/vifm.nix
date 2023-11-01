@@ -127,7 +127,7 @@ in
 
     programs.neovim.plugins = lib.mkIf cfg.neovimPlugin.enable [{
       plugin = pkgs.vimPlugins.vifm-vim;
-      config = with lib; self.lib.code "vim" ''
+      config = with lib; /* vim */ ''
         lua <<EOF
         vim.g.loaded_netrw = 1
         vim.g.loaded_netrwPlugin = 1
@@ -167,7 +167,7 @@ in
             command${bang} ${name} ${cmd.action}${bg}
           '';
       in
-      with lib; with cfg.settings; self.lib.code "vifm" ''
+      with lib; with cfg.settings; /* vifm */ ''
         ${concatMapSettings setOpt options}
 
         ${if colorscheme == null then "" else ''

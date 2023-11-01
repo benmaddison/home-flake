@@ -3,7 +3,7 @@
 let
   cfg = config.local.mail;
   accounts = lib.attrValues cfg;
-  move-mail = with pkgs; writeShellScriptBin "move-mail" (self.lib.code "bash" ''
+  move-mail = with pkgs; writeShellScriptBin "move-mail" /* bash */ ''
     set -euo pipefail
 
     export PATH="${lib.makeBinPath [ coreutils hostname util-linux fd ]}"
@@ -59,8 +59,8 @@ let
     mv "$src_path" "$dst_path"
 
     exit 0
-  '');
-  notmuch-move = with pkgs; writeShellScriptBin "notmuch-move" (self.lib.code "bash" ''
+  '';
+  notmuch-move = with pkgs; writeShellScriptBin "notmuch-move" /* bash */ ''
     set -euo pipefail
 
     export PATH="${lib.makeBinPath [ coreutils notmuch findutils move-mail ]}"
@@ -142,16 +142,16 @@ let
     fi
 
     exit 0
-  '');
-  notmuch-move-all = pkgs.writeShellScriptBin "notmuch-move-all" (self.lib.code "bash" ''
+  '';
+  notmuch-move-all = pkgs.writeShellScriptBin "notmuch-move-all" /* bash */ ''
     ${lib.concatStrings (lib.concatMap (account:
-      lib.mapAttrsToList (tag: folder: self.lib.code "bash" ''
+      lib.mapAttrsToList (tag: folder: /* bash */ ''
         ${notmuch-move}/bin/notmuch-move \
           -r "move/${tag}" \
           -d "${account.name}/${folder}" \
           -- tag:move/${tag} and tag:account/${account.name}
       '') (account.folders // account.extraFolders)) accounts)}
-  '');
+  '';
 in
 {
   options = {
@@ -343,14 +343,14 @@ in
             '';
           in
           {
-            "neomutt/mailcap".text = with pkgs; self.lib.code "mailcap" ''
+            "neomutt/mailcap".text = with pkgs; /* mailcap */ ''
               text/html; ${w3m}/bin/w3m -dump -o -document_charset=%{charset} %s; nametemplate=%s.html; copiousoutput
               text/*; ${xdg-utils}/bin/xdg-open %s
               audio/*; ${xdg-utils}/bin/xdg-open %s
               image/*; ${xdg-utils}/bin/xdg-open %s
               application/*; ${xdg-utils}/bin/xdg-open %s
             '';
-            "neomutt/neomuttrc".text = self.lib.code "neomuttrc" ''
+            "neomutt/neomuttrc".text = /* neomuttrc */ ''
               set header_cache = "${cacheDir}/headers"
               set message_cachedir = "${cacheDir}/bodies"
               #set tmpdir = "${runtimeDir}/tmp"

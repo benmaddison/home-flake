@@ -13,20 +13,17 @@ in
     xdg.configFile =
       let
         treesitterQueries = {
-          nix.injections = self.lib.code "query" ''
+          # TODO:
+          # drop this once https://github.com/nvim-treesitter/nvim-treesitter/pull/4658
+          # makes it into nixpkgs-stable
+          nix.injections = /* query */ ''
             ;; extends
-            ((apply_expression
-              function: (apply_expression
-                function: (_) @_func
-                argument: (string_expression (string_fragment) @language))
-              argument: [
-                (string_expression (string_fragment) @content)
-                (indented_string_expression (string_fragment) @content)
-              ])
-              (#match? @_func "(^|\\.)code"))
-              @combined
+            ((((comment) @injection.language) .
+             (indented_string_expression (string_fragment) @injection.content))
+             (#gsub! @injection.language "/%*%s*(%w+)%s*%*/" "%1")
+             (#set! injection.combined))
           '';
-          lua.highlights = self.lib.code "query" ''
+          lua.highlights = /* query */ ''
             ;; extends
             (string) @nospell
           '';
@@ -51,7 +48,7 @@ in
 
         {
           plugin = which-key-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             wk = require('which-key')
             wk.setup {
@@ -82,7 +79,7 @@ in
         nvim-ts-context-commentstring
         {
           plugin = nvim-treesitter.withAllGrammars;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('nvim-treesitter.configs').setup {
               highlight = {
@@ -111,7 +108,7 @@ in
         }
         {
           plugin = comment-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('Comment').setup({
               pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
@@ -123,7 +120,7 @@ in
         cmp-nvim-lsp
         {
           plugin = nvim-lspconfig;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
             lsp_on_attach = function(client, bufnr)
@@ -236,7 +233,7 @@ in
         cmp-nvim-lua
         {
           plugin = cmp-git;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('cmp_git').setup()
             EOF
@@ -244,7 +241,7 @@ in
         }
         {
           plugin = nvim-cmp;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             local cmp = require('cmp')
             cmp.setup {
@@ -309,7 +306,7 @@ in
 
         {
           plugin = onenord-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('onenord').setup({
               theme = 'dark',
@@ -332,7 +329,7 @@ in
         telescope-lsp-handlers-nvim
         {
           plugin = telescope-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             local telescope = require('telescope')
             local actions = require('telescope.actions')
@@ -442,7 +439,7 @@ in
 
         {
           plugin = pears-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('pears').setup()
             EOF
@@ -451,7 +448,7 @@ in
 
         {
           plugin = nvim-surround;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('nvim-surround').setup({})
             EOF
@@ -460,7 +457,7 @@ in
 
         {
           plugin = vim-floaterm;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             wk.register({
               t = {
@@ -477,7 +474,7 @@ in
 
         {
           plugin = gitsigns-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('gitsigns').setup{
               on_attach = function(bufnr)
@@ -530,7 +527,7 @@ in
 
         {
           plugin = lualine-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('lualine').setup {
               options = {
@@ -549,7 +546,7 @@ in
 
         {
           plugin = fidget-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('fidget').setup {
               window = {
@@ -563,7 +560,7 @@ in
 
         {
           plugin = octo-nvim;
-          config = self.lib.code "vim" ''
+          config = /* vim */ ''
             lua <<EOF
             require('octo').setup {}
             EOF
@@ -571,7 +568,7 @@ in
         }
       ];
 
-      extraConfig = self.lib.code "vim" ''
+      extraConfig = /* vim */ ''
         lua <<EOF
         vim.o.expandtab = true
         vim.o.hidden = true
