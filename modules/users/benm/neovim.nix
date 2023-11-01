@@ -218,6 +218,10 @@ in
                 },
               },
             }
+
+            lspconfig.marksman.setup {
+              cmd = { '${pkgs.marksman}/bin/marksman', 'server' },
+            }
             EOF
           '';
         }
