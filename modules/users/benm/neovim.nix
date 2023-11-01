@@ -222,33 +222,6 @@ in
           '';
         }
 
-        # TODO: re-enable once https://github.com/simrat39/rust-tools.nvim/issues/312
-        #       is fixed in nixpkgs-stable
-        #
-        # {
-        #   plugin = rust-tools-nvim;
-        #   config = self.lib.code "vim" ''
-        #     lua <<EOF
-        #     local rt = require('rust-tools')
-        #     rt.setup({
-        #       server = {
-        #         on_attach = function(client, bufnr)
-        #           lsp_on_attach(client, bufnr)
-        #           -- Hover actions
-        #           vim.keymap.set('n', '<C-space>', rt.hover_actions.hover_actions, { buffer = bufnr })
-        #           -- Code action groups
-        #           vim.keymap.set('n', '<leader>a', rt.code_action_group.code_action_group, { buffer = bufnr })
-        #           -- Cargo run
-        #           vim.keymap.set('n', '<leader>rr', '<cmd>FloatermNew --autoclose=0 cargo run<cr>', {})
-        #           vim.keymap.set('n', '<leader>rt', '<cmd>FloatermNew --autoclose=0 cargo test<cr>', {})
-        #           vim.keymap.set('n', '<leader>rc', '<cmd>FloatermNew --autoclose=0 cargo check<cr>', {})
-        #         end,
-        #       },
-        #     })
-        #     EOF
-        #   '';
-        # }
-
         cmp-buffer
         cmp-path
         cmp-cmdline
