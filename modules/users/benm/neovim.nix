@@ -563,6 +563,16 @@ in
           config = /* vim */ ''
             lua <<EOF
             require('octo').setup {}
+            wk.register({
+              o = {
+                name = '+octo',
+                i = { '<cmd>Octo issue list<cr>', 'List github issues' },
+                p = { '<cmd>Octo pr list<cr>', 'List github pull-requests' },
+                a = { '<cmd>Octo actions<cr>', 'List available octo actions' },
+              }
+            }, {
+              prefix = '<leader>',
+            })
             EOF
           '';
         }
