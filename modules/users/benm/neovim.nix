@@ -148,7 +148,16 @@ in
 
             lspconfig.rnix.setup {
               cmd = { '${pkgs.rnix-lsp}/bin/rnix-lsp' },
-              on_attach = lsp_on_attach,
+              on_attach = function(client, bufnr)
+                lsp_on_attach(client, bufnr)
+                wk.register({
+                  name = '+nix-flake',
+                  c = { '<cmd>FloatermNew --autoclose=0 nix flake check<cr>', "nix flake check" },
+                }, {
+                  prefix = '<leader>n',
+                  buffer = bufnr,
+                })
+              end,
               capabilities = lsp_capabilities,
             }
 
