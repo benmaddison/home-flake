@@ -67,6 +67,7 @@ in
     nix-diff
     openssl
     psmisc
+    qgis
     ripgrep
     screen
     socat
