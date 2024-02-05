@@ -23,6 +23,7 @@ let
   slack = self.lib.import ./slack.nix;
   vifm = self.lib.import ./vifm.nix;
   zoom = self.lib.import ./zoom.nix;
+  zulip = self.lib.import ./zulip.nix;
 in
 {
   home.username = "benm";
@@ -49,6 +50,7 @@ in
     slack
     vifm
     zoom
+    zulip
   ];
 
   home.packages = with pkgs; [
@@ -157,6 +159,7 @@ in
       enable = true;
     };
     zoom.enable = true;
+    zulip.enable = true;
   };
 
   programs.autorandr =
