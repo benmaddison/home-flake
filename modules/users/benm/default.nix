@@ -71,6 +71,7 @@ in
     ripgrep
     screen
     socat
+    tcpdump
     tokei
     unzip
     w3m
