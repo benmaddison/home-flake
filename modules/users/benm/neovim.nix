@@ -76,7 +76,6 @@ in
         }
 
         playground
-        nvim-ts-context-commentstring
         {
           plugin = nvim-treesitter.withAllGrammars;
           config = /* vim */ ''
@@ -94,15 +93,21 @@ in
               query_linter = {
                 enable = true,
               },
-              context_commentstring = {
-                enable = true,
-                enable_autocommand = false,
-                config = {
-                  query = '; %s',
-                },
-              },
             }
             vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+            EOF
+          '';
+        }
+        {
+          plugin = nvim-ts-context-commentstring;
+          config = /* vim */ ''
+            lua <<EOF
+            require('ts_context_commentstring').setup {
+              enable_autocmd = false,
+              languages = {
+                query = '; %s',
+              }
+            }
             EOF
           '';
         }

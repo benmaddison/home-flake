@@ -2,7 +2,7 @@
 
 let
   unfreePkgs = [ "morgen" "zoom" "slack" ];
-  insecurePkgs = [ "electron-22.3.27" ];
+  insecurePkgs = [ "electron-25.9.0" ];
 in
 {
   imports = with self.inputs; [
