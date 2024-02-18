@@ -478,7 +478,10 @@ in
       tabs = [{ direction = "Vertical"; }];
     };
 
-  programs.zoxide.enable = true;
+  programs.zoxide = {
+    enable = true;
+    options = [ "--cmd cd" ];
+  };
 
   services.keybase.enable = true;
   services.kbfs = {
