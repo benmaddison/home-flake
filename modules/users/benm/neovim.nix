@@ -442,7 +442,7 @@ in
                 wk.register({
                   a = { function() picker() end, "Add attachments" },
                 }, {
-                  buffer = true,
+                  buffer = 0,
                   prefix = '<leader>',
                 })
               end,
