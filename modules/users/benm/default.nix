@@ -223,6 +223,7 @@ in
     historyFile = "${config.xdg.dataHome}/bash/history";
     historyControl = [ "ignoredups" "ignorespace" ];
     shellAliases = {
+      ":q" = ''exit'';
       ".." = ''cd ..'';
       "..." = ''cd "$(git root || echo -n .)"'';
       "cat" = ''bat'';
