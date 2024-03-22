@@ -391,6 +391,7 @@ in
                 h = { function() builtin.help_tags() end, "Help tags" },
                 F = { function() builtin.filetypes() end, "File types" },
                 k = { function() builtin.keymaps() end, "Keymaps" },
+                g = { function() builtin.git_status() end, "Git status" },
                 P = { function() builtin.builtin() end, "Built-in telescope pickers" },
               },
               g = { function() builtin.diagnostics() end, "Show diagnostics" },
