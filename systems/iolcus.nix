@@ -92,6 +92,12 @@ in
   networking.networkmanager.enable = true;
   networking.search = [ "wolcomm.net" ];
   networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
+  networking.firewall = {
+    checkReversePath = "loose";
+    logRefusedPackets = true;
+    logRefusedUnicastsOnly = true;
+    logReversePathDrops = true;
+  };
   systemd.services.systemd-networkd-wait-online.enable = lib.mkForce false;
   services.resolved.dnssec = "true";
 
