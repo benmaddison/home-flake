@@ -78,6 +78,7 @@ in
     unzip
     w3m
     xclip
+    zip
   ];
 
   local = {
