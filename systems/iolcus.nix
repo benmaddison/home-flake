@@ -20,9 +20,17 @@ in
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
     packages = with pkgs; [ terminus_font powerline-fonts ];
-    font = "ter-powerline-v20n";
-    colors = with self.lib.colors "nord" "hex";
-      (lib.attrValues normal) ++ (lib.attrValues bright);
+    font = "ter-powerline-v16n";
+    colors = with self.lib.colors "nord" "hex"; [
+      primary.background
+      normal.red
+      normal.green
+      normal.yellow
+      normal.blue
+      normal.magenta
+      normal.cyan
+      primary.foreground
+    ] ++ (lib.attrValues bright);
   };
   services.kmscon = {
     # enable = true;
