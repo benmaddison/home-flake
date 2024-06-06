@@ -67,6 +67,7 @@ in
     linuxPackages.perf
     mtr
     nix-diff
+    numbat
     openssl
     psmisc
     qgis
