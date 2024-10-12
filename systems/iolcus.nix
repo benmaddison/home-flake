@@ -143,6 +143,7 @@ in
     directories = [
       "/etc/NetworkManager/system-connections"
       "/var/lib/boltd"
+      "/var/lib/nixos"
       "/var/log"
     ];
     files = [
