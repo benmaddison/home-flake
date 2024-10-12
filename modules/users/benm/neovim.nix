@@ -151,21 +151,6 @@ in
 
             local lspconfig = require('lspconfig')
 
-            lspconfig.rnix.setup {
-              cmd = { '${pkgs.rnix-lsp}/bin/rnix-lsp' },
-              on_attach = function(client, bufnr)
-                lsp_on_attach(client, bufnr)
-                wk.register({
-                  name = '+nix-flake',
-                  c = { '<cmd>FloatermNew --autoclose=0 nix flake check<cr>', "nix flake check" },
-                }, {
-                  prefix = '<leader>n',
-                  buffer = bufnr,
-                })
-              end,
-              capabilities = lsp_capabilities,
-            }
-
             lspconfig.lua_ls.setup {
               cmd = { '${pkgs.luaPackages.lua-lsp}/bin/lua-language-server'},
               on_attach = lsp_on_attach,
