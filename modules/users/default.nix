@@ -38,6 +38,7 @@ in
               "dialout"
               "docker"
               "networkmanager"
+              "nitrokey"
               "video"
               "wheel"
             ];

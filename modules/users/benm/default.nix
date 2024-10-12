@@ -3,54 +3,35 @@
 let
   system = pkgs.system;
   colors = config.local.colorscheme.hashHex;
-
-  alacritty = self.lib.import ./alacritty.nix;
-  azure = self.lib.import ./azure.nix;
-  colorscheme = self.lib.import ./colorscheme.nix;
-  drawio = self.lib.import ./drawio.nix;
-  fonts = self.lib.import ./fonts.nix;
-  gnome-keyring = self.lib.import ./gnome-keyring.nix;
-  gpg = self.lib.import ./gpg.nix;
-  insync = self.lib.import ./insync.nix;
-  mail = self.lib.import ./mail.nix;
-  morgen = self.lib.import ./morgen.nix;
-  neovim = self.lib.import ./neovim.nix;
-  nsxiv = self.lib.import ./nsxiv.nix;
-  persistence = self.lib.import ./persistence.nix;
-  rclone = self.lib.import ./rclone.nix;
-  rofi = self.lib.import ./rofi.nix;
-  rust = self.lib.import ./rust.nix;
-  slack = self.lib.import ./slack.nix;
-  vifm = self.lib.import ./vifm.nix;
-  zoom = self.lib.import ./zoom.nix;
-  zulip = self.lib.import ./zulip.nix;
 in
 {
   home.username = "benm";
   home.homeDirectory = "/home/benm";
   home.stateVersion = "22.05";
 
-  imports = [
-    alacritty
-    azure
-    colorscheme
-    drawio
-    fonts
-    gnome-keyring
-    gpg
-    insync
-    mail
-    morgen
-    neovim
-    nsxiv
-    persistence
-    rclone
-    rofi
-    rust
-    slack
-    vifm
-    zoom
-    zulip
+  imports = map (path: self.lib.import path) [
+    ./alacritty.nix
+    ./azure.nix
+    ./colorscheme.nix
+    ./drawio.nix
+    ./fonts.nix
+    ./gnome-keyring.nix
+    ./gpg.nix
+    ./insync.nix
+    ./keybase.nix
+    ./mail.nix
+    ./morgen.nix
+    ./neovim.nix
+    ./nitrokey.nix
+    ./nsxiv.nix
+    ./persistence.nix
+    ./rclone.nix
+    ./rofi.nix
+    ./rust.nix
+    ./slack.nix
+    ./vifm.nix
+    ./zoom.nix
+    ./zulip.nix
   ];
 
   home.packages = with pkgs; [
@@ -93,7 +74,6 @@ in
         "downloads"
         "media"
         ".cache"
-        ".config/keybase"
         ".local/share"
         ".mozilla/firefox/default"
       ];
@@ -113,6 +93,7 @@ in
       defaultSignKey = "0xB48B6860";
       defaultEncryptKey = "0xFEA8F45D";
     };
+    keybase.enable = true;
     mail = {
       workonline = {
         address = "benm@workonline.africa";
@@ -148,6 +129,7 @@ in
       };
     };
     morgen.enable = true;
+    nitrokey.enable = true;
     nsxiv = {
       enable = true;
       settings.window = { inherit (colors.primary) background foreground; };
@@ -484,12 +466,6 @@ in
   programs.zoxide = {
     enable = true;
     options = [ "--cmd cd" ];
-  };
-
-  services.keybase.enable = true;
-  services.kbfs = {
-    enable = true;
-    mountPoint = "documents/keybase";
   };
 
   xdg = {

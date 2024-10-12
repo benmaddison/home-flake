@@ -25,6 +25,7 @@ in
       {
         "${mod}+s" = "exec ${rofi-pulse-select "sink"}";
         "${mod}+Shift+s" = "exec ${rofi-pulse-select "source"}";
+        "${mod}+Print" = "exec ${pkgs.rofi-screenshot}/bin/rofi-screenshot";
       };
   };
 }

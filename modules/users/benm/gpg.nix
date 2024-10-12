@@ -7,7 +7,8 @@ let
     type = with types; nullOr (strMatching keyIdRegex);
     default = null;
   };
-in {
+in
+{
   options.local.gpg = {
     enable = lib.mkEnableOption "enable GnuPG";
     defaultSignKey = keyIdOption;
@@ -20,6 +21,7 @@ in {
       homedir = "${config.xdg.dataHome}/gnupg";
       mutableKeys = false;
       mutableTrust = false;
+      scdaemonSettings.disable-ccid = true;
     };
     services.gpg-agent = {
       enable = true;

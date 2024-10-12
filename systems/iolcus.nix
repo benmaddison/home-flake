@@ -1,7 +1,7 @@
 { self, config, pkgs, lib, modulesPath, ... }:
 
 let
-  unfreePkgs = [ "morgen" "zoom" "slack" ];
+  unfreePkgs = [ "morgen" "zoom" "slack" "pypemicro" ];
   insecurePkgs = [ "electron-25.9.0" ];
 in
 {
@@ -74,6 +74,10 @@ in
   powerManagement.cpuFreqGovernor = "powersave";
   hardware.cpu.intel.updateMicrocode = config.hardware.enableRedistributableFirmware;
   services.hardware.bolt.enable = true;
+
+  services.pcscd.enable = true;
+  hardware.nitrokey.enable = true;
+  hardware.gpgSmartcards.enable = true;
 
   systemd.sleep.extraConfig = ''
     AllowSuspend=no
