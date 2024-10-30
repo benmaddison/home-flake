@@ -1,4 +1,4 @@
-{ self }: { config, options, lib, ... }:
+{ self }: { config, options, lib, pkgs, ... }:
 
 let
   cfg = config.local.gpg;
@@ -26,7 +26,7 @@ in
     services.gpg-agent = {
       enable = true;
       enableSshSupport = true;
-      pinentryFlavor = "gnome3";
+      pinentryPackage = pkgs.pinentry-gnome3;
     };
   };
 }

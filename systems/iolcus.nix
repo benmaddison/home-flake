@@ -121,12 +121,12 @@ in
   services.xserver = {
     enable = true;
     autorun = false;
-    layout = "us";
-    libinput.enable = true;
+    xkb.layout = "us";
     displayManager.sx.enable = true;
     # TODO:
     #xkbOptions = {};
   };
+  services.libinput.enable = true;
 
   sound.enable = true;
   hardware.pulseaudio.enable = true;

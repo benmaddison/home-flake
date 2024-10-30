@@ -549,9 +549,11 @@ in
           config = /* vim */ ''
             lua <<EOF
             require('fidget').setup {
-              window = {
-                blend = 0,
-                border = 'single',
+              notification = {
+                window = {
+                  winblend = 0,
+                  border = 'single',
+                },
               },
             }
             EOF

@@ -235,7 +235,7 @@ in
 
   programs.eza = {
     enable = true;
-    enableAliases = true;
+    enableBashIntegration = true;
   };
 
   programs.firefox = {
