@@ -94,6 +94,8 @@ in
     '';
   };
 
+  security.polkit.enable = true;
+
   services.physlock = {
     enable = true;
     lockMessage = "This system is locked";
