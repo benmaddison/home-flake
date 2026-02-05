@@ -570,65 +570,65 @@ in
 
               # Basic Colors ---------------------------------
               # Colour for attachment headers
-              color attachment          blue            default
+              color attachment          blue                default
               # Highlighting bold patterns in the body of messages
-              color bold                brightdefault   default
+              color bold                bold default        default
               # Error messages printed by NeoMutt
-              color error               red             default
+              color error               red                 default
               # Default colour of the message header in the pager
-              color hdrdefault          magenta         default
+              color hdrdefault          magenta             default
               # Arrow or bar used to indicate the current item in a menu
-              color indicator           brightcyan      black
+              color indicator           bold cyan           black
               # The "+" markers at the beginning of wrapped lines in the pager
-              color markers             default         default
+              color markers             default             default
               # Informational messages
-              color message             blue            default
+              color message             blue                default
               # Default colour for all text
-              color normal              default         default
+              color normal              default             default
               # Visual progress bar
-              color progress            black           cyan
+              color progress            black               cyan
               # A question
-              color prompt              brightblue      default
+              color prompt              bold blue           default
               # Highlighting of words in the pager
-              color search              red             default
+              color search              red                 default
               # Email's signature lines (.sig)
-              color signature           default         default
+              color signature           default             default
               # The "~" used to pad blank lines in the pager
-              color tilde               default         default
+              color tilde               default             default
               # Thread tree drawn in the message index and attachment menu
-              color tree                magenta         default
+              color tree                magenta             default
               # Highlighting underlined patterns in the body of messages
-              color underline           brightdefault   default
+              color underline           underline default   default
 
               # Sidebar Colors ---------------------------------
               # The dividing line between the Sidebar and the Index/Pager panels
-              color sidebar_divider     lightblack      default
+              color sidebar_divider     lightblack          default
               # Mailboxes containing flagged mail
-              color sidebar_flagged     default         default
+              color sidebar_flagged     default             default
               # Cursor to select a mailbox
-              color sidebar_highlight   default         lightblack
+              color sidebar_highlight   default             lightblack
               # The mailbox open in the Index panel
-              color sidebar_indicator   lightwhite      blue
+              color sidebar_indicator   lightwhite          blue
               # Mailboxes containing new mail
-              color sidebar_new         default         default
+              color sidebar_new         default             default
               # Mailbox that receives incoming mail
-              color sidebar_spoolfile   default         default
+              color sidebar_spoolfile   default             default
 
               # Status Line colors ---------------------------
-              color status              brightblue      black
+              color status              bold blue           black
 
               # Index Colors ---------------------------------
               # show unread msgs or collapsed threads with unread msgs in bold
-              color index               brightdefault   default     "~U | (~v ~(~U))"
+              color index               bold default        default     "~U | (~v ~(~U))"
               # show the date in magenta
-              color index_date          magenta         default
+              color index_date          magenta             default
 
               # Regexp Colors ---------------------------------
-              # color header            default         default
-              # color body              default         default
+              # color header            default             default
+              # color body              default             default
 
               # Quoted Text Colors ---------------------------------
-              color quoted              default         default
+              color quoted              default             default
             '';
           };
       in
