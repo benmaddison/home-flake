@@ -218,6 +218,21 @@ in
             lspconfig.marksman.setup {
               cmd = { '${pkgs.marksman}/bin/marksman', 'server' },
             }
+
+            lspconfig.nil_ls.setup {
+              cmd = { '${pkgs.nil}/bin/nil' },
+              on_attach = function(client, bufnr)
+                lsp_on_attach(client, bufnr)
+                wk.register({
+                  name = '+nix',
+                  c = { '<cmd>FloatermNew --autoclose=0 nix flake check<cr>', "flake check" },
+                }, {
+                  prefix = '<leader>n',
+                  buffer = bufnr,
+                })
+              end,
+              capabilities = lsp_capabilities,
+            }
             EOF
           '';
         }
