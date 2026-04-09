@@ -168,6 +168,13 @@ in
     settings = {
       trusted-users = [ "@wheel" ];
       experimental-features = [ "nix-command" "flakes" ];
+      substituters = [
+        "https://cache.nixos.org/"
+        "https://wolcomm-private.cachix.org"
+      ];
+      trusted-public-keys = [
+        "wolcomm-private.cachix.org-1:A1HahkIznp2GSgCUAPB8GTNQANT7ZG9Kvar7oycX8S0="
+      ];
     };
     nixPath = [ "nixpkgs=/run/current-system/source/inputs/nixpkgs" ];
     registry =
