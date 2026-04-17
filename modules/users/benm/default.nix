@@ -12,6 +12,7 @@ in
   imports = map (path: self.lib.import path) [
     ./alacritty.nix
     ./azure.nix
+    ./cachix.nix
     ./colorscheme.nix
     ./drawio.nix
     ./fonts.nix
@@ -76,11 +77,13 @@ in
         ".cache"
         ".local/share"
         ".mozilla/firefox/default"
+        ".ssh"
       ];
     };
     alacritty.enable = true;
     azure.enable = true;
     colorscheme.theme = "nord";
+    cachix.enable = true;
     drawio.enable = true;
     fonts = {
       enable = true;
