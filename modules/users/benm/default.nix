@@ -140,7 +140,7 @@ in
     neovim.enable = true;
     rclone.enable = true;
     rofi.enable = true;
-    rust.enable = true;
+    # rust.enable = true;
     slack.enable = true;
     vifm = {
       enable = true;

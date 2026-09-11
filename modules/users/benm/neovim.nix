@@ -188,7 +188,6 @@ in
             }
 
             lspconfig.rust_analyzer.setup {
-              cmd = { 'rustup', 'run', 'nightly', 'rust-analyzer'},
               on_attach = function(client, bufnr)
                 lsp_on_attach(client, bufnr)
                 wk.register({
