@@ -30,6 +30,7 @@ in
     ./rofi.nix
     ./rust.nix
     ./slack.nix
+    ./sway.nix
     ./vifm.nix
     ./zoom.nix
     ./zulip.nix
@@ -142,6 +143,7 @@ in
     rofi.enable = true;
     # rust.enable = true;
     slack.enable = true;
+    sway.enable = true;
     vifm = {
       enable = true;
     };

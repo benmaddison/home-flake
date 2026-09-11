@@ -15,6 +15,8 @@ in
 
   config = lib.mkIf cfg.enable {
     # work around broken per-monitor DPI scaling
+    # TODO:
+    # is this still necessary under wayland?
     home.sessionVariables.WINIT_X11_SCALE_FACTOR = 1;
 
     programs.alacritty = {
@@ -37,5 +39,6 @@ in
     programs.rofi.terminal = exec-path;
 
     xsession.windowManager.i3.config.terminal = exec-path;
+    wayland.windowManager.sway.config.terminal = exec-path;
   };
 }

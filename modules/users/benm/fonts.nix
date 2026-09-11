@@ -40,5 +40,11 @@ in
       style = "Regular";
       inherit (cfg) size;
     };
+
+    wayland.windowManager.sway.config.fonts = {
+      names = [ cfg.family ];
+      style = "Regular";
+      inherit (cfg) size;
+    };
   };
 }
