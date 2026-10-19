@@ -2,7 +2,7 @@
 
 let
   cfg = config.local.rofi;
-  system = pkgs.system;
+  inherit (pkgs.stdenv.hostPlatform) system;
 in
 {
   options.local.rofi = {

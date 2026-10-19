@@ -1,7 +1,20 @@
-{ self, config, pkgs, lib, modulesPath, ... }:
+{
+  self,
+  config,
+  pkgs,
+  lib,
+  modulesPath,
+  ...
+}:
 
 let
-  unfreePkgs = [ "morgen" "zoom" "slack" "pypemicro" ];
+  unfreePkgs = [
+    "morgen"
+    "zoom"
+    "slack"
+    "pypemicro"
+    "pears.nvim"
+  ];
   insecurePkgs = [ "electron-25.9.0" ];
 in
 {
@@ -12,30 +25,45 @@ in
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "nvme"
+    "usb_storage"
+    "sd_mod"
+    "rtsx_pci_sdmmc"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
-    packages = with pkgs; [ terminus_font powerline-fonts ];
+    packages = with pkgs; [
+      terminus_font
+      powerline-fonts
+    ];
     font = "ter-powerline-v16n";
-    colors = with self.lib.colors "nord" "hex"; [
-      primary.background
-      normal.red
-      normal.green
-      normal.yellow
-      normal.blue
-      normal.magenta
-      normal.cyan
-      primary.foreground
-    ] ++ (lib.attrValues bright);
+    colors =
+      with self.lib.colors "nord" "hex";
+      [
+        primary.background
+        normal.red
+        normal.green
+        normal.yellow
+        normal.blue
+        normal.magenta
+        normal.cyan
+        primary.foreground
+      ]
+      ++ (lib.attrValues bright);
   };
   services.kmscon = {
     # enable = true;
     fonts = [
-      { name = "Source Code Pro"; package = pkgs.source-code-pro; }
+      {
+        name = "Source Code Pro";
+        package = pkgs.source-code-pro;
+      }
     ];
     hwRender = true;
     extraConfig = ''
@@ -47,7 +75,10 @@ in
     "/" = {
       device = "none";
       fsType = "tmpfs";
-      options = [ "size=8G" "mode=755" ];
+      options = [
+        "size=8G"
+        "mode=755"
+      ];
     };
     "/boot" = {
       device = "/dev/disk/by-label/boot";
@@ -69,7 +100,7 @@ in
     };
   };
 
-  swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
+  swapDevices = [ { device = "/dev/disk/by-label/swap"; } ];
 
   powerManagement.cpuFreqGovernor = "powersave";
   hardware.cpu.intel.updateMicrocode = config.hardware.enableRedistributableFirmware;
@@ -79,19 +110,17 @@ in
   hardware.nitrokey.enable = true;
   hardware.gpgSmartcards.enable = true;
 
-  systemd.sleep.extraConfig = ''
-    AllowSuspend=no
-  '';
+  systemd.sleep.settings.Sleep = {
+    AllowSuspend = false;
+  };
 
-  services.logind = {
-    killUserProcesses = true;
-    lidSwitch = "hibernate";
-    extraConfig = ''
-      IdleAction=lock
-      IdleActionSec=300
-      HandlePowerKey=hibernate
-      HandlePowerKeyLongPress=poweroff
-    '';
+  services.logind.settings.Login = {
+    KillUserProcesses = true;
+    HandleLidSwitch = "hibernate";
+    IdleAction = "lock";
+    IdleActionSec = 300;
+    HandlePowerKey = "hibernate";
+    HandlePowerKeyLongPress = "poweroff";
   };
 
   security.polkit.enable = true;
@@ -105,14 +134,17 @@ in
   networking.useNetworkd = true;
   networking.networkmanager.enable = true;
   networking.search = [ "wolcomm.net" ];
-  networking.nameservers = [ "1.1.1.1" "9.9.9.9" ];
+  networking.nameservers = [
+    "1.1.1.1"
+    "9.9.9.9"
+  ];
   networking.firewall = {
     checkReversePath = false;
     logRefusedPackets = true;
     logRefusedUnicastsOnly = true;
   };
   systemd.services.systemd-networkd-wait-online.enable = lib.mkForce false;
-  services.resolved.dnssec = "true";
+  services.resolved.settings.Resolve.DNSSEC = true;
 
   local.users.benm.hashedPassword = "$6$Fjct9SMOV8uWIMrU$vTqfSYHFk/dgAyy0UTq/notTPcfmZiGpW9t3lVFmbB8aZnkDu5/0kJs8W5a3Uc1Edzh0mReXgk/iKdR3mPm8Z1";
 
@@ -130,10 +162,57 @@ in
   };
   services.libinput.enable = true;
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  systemd.services.keyd.serviceConfig = {
+    ReadWritePaths = [ "/sys/class/backlight/intel_backlight/" ];
+  };
+  services.keyd = {
+    enable = true;
+    keyboards.default = {
+      ids = [ "*" ];
+      settings =
+        let
+          backlight = args: /* bash */ "${pkgs.acpilight}/bin/xbacklight -ctrl intel_backlight -fps 60 ${args}";
+        in
+        {
+          main = {
+            d = "lettermod(nav, d, 150, 200)";
+            # playpause = "";
+            brightnessdown = "command(${backlight "-dec 10"})";
+            brightnessup = "command(${backlight "-inc 10"})";
+            # compose = "";
+          };
+          nav = {
+            h = "left";
+            j = "down";
+            k = "up";
+            l = "right";
+            f = "lettermod(nav-page, f, 150, 200)";
+          };
+          nav-page = {
+            j = "pagedown";
+            k = "pageup";
+          };
+        };
+    };
+  };
 
   services.autorandr.enable = true;
+
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
+    pulse.enable = true;
+  };
+
+  # TODO: move to bluetooth module
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
+  hardware.acpilight.enable = true;
 
   environment.systemPackages = with pkgs; [
     pciutils
@@ -146,6 +225,8 @@ in
       "/etc/NetworkManager/system-connections"
       "/var/lib/boltd"
       "/var/lib/nixos"
+      # TODO: move to bluetooth module
+      "/var/lib/bluetooth"
       "/var/log"
     ];
     files = [
@@ -153,56 +234,41 @@ in
     ];
   };
 
-  system.extraSystemBuilderCmds = ''
+  system.systemBuilderCommands = /* bash */ ''
     mkdir -p $out/source/inputs
     ln -s ${self} $out/source/self
     ${lib.concatStrings (
       lib.mapAttrsToList (name: source: ''
         ln -s ${source} $out/source/inputs/${name}
-      '')
-      self.inputs
+      '') self.inputs
     )}
   '';
 
   nix = {
     settings = {
       trusted-users = [ "@wheel" ];
-      experimental-features = [ "nix-command" "flakes" ];
-      substituters = [
-        "https://cache.nixos.org/"
-        "https://wolcomm-private.cachix.org"
-      ];
-      trusted-public-keys = [
-        "wolcomm-private.cachix.org-1:A1HahkIznp2GSgCUAPB8GTNQANT7ZG9Kvar7oycX8S0="
+      experimental-features = [
+        "nix-command"
+        "flakes"
       ];
     };
     nixPath = [ "nixpkgs=/run/current-system/source/inputs/nixpkgs" ];
-    registry =
-      lib.mapAttrs (name: flake: { inherit flake; }) self.inputs //
-      {
-        system.to = {
-          type = "github";
-          owner = "benmaddison";
-          repo = "home-flake";
-        };
-        slides-template.to = {
-          type = "github";
-          owner = "benmaddison";
-          repo = "slides-template";
-        };
+    registry = lib.mapAttrs (name: flake: { inherit flake; }) self.inputs // {
+      system.to = {
+        type = "github";
+        owner = "benmaddison";
+        repo = "home-flake";
       };
-  };
-  nixpkgs.config =
-    {
-      allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
-      permittedInsecurePackages = insecurePkgs;
     };
+  };
+  nixpkgs.config = {
+    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;
+    permittedInsecurePackages = insecurePkgs;
+  };
 
   programs.dconf.enable = true;
 
   programs.fuse.userAllowOther = true;
-
-  programs.light.enable = true;
 
   programs.neovim = {
     enable = true;

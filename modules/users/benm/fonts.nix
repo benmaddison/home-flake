@@ -8,7 +8,6 @@ in
     enable = lib.mkEnableOption "default font";
     packages = lib.mkOption {
       type = with lib.types; listOf package;
-      default = [ pkgs.nerdfonts ];
     };
     family = lib.mkOption {
       type = lib.types.str;

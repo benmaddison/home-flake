@@ -1,4 +1,10 @@
-{ self }: { config, pkgs, lib, ... }:
+{ self }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.neovim;
@@ -29,9 +35,9 @@ in
           '';
         };
         path = lang: module: "nvim/after/queries/${lang}/${module}.scm";
-        writeQuery = lang: mod: src:
-          { source = pkgs.writeText "${lang}-${mod}.scm" src; };
-        makeQuery = lang: mod: src:
+        writeQuery = lang: mod: src: { source = pkgs.writeText "${lang}-${mod}.scm" src; };
+        makeQuery =
+          lang: mod: src:
           lib.nameValuePair (path lang mod) (writeQuery lang mod src);
         queriesFor = lang: mods: lib.mapAttrs' (makeQuery lang) mods;
         queries = lib.mapAttrsToList queriesFor treesitterQueries;
@@ -43,105 +49,103 @@ in
       viAlias = true;
       vimAlias = true;
       vimdiffAlias = true;
+      withRuby = false;
+      withPython3 = false;
+      extraPackages = with pkgs; [
+        tree-sitter
+      ];
       plugins = with pkgs.vimPlugins; [
         nvim-web-devicons
-
+        {
+          plugin = mini-icons;
+          type = "lua";
+          config = /* lua */ ''
+            require('mini.icons').setup({})
+          '';
+        }
         {
           plugin = which-key-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             wk = require('which-key')
-            wk.setup {
-              operators = {
-                ys = "Create surround",
-                cs = "Change surround",
-                ds = "Delete surround",
-                gc = "Line comment",
-                gb = "Block comment",
-              }
-            }
-            wk.register({
-              ['<C-h>'] = { '<C-w>h', "Move to left window"},
-              ['<C-j>'] = { '<C-w>j', "Move to down window"},
-              ['<C-k>'] = { '<C-w>k', "Move to up window"},
-              ['<C-l>'] = { '<C-w>l', "Move to right window"},
-              ['[g'] = { function() vim.diagnostic.goto_prev() end, "Previous diagnostic" },
-              [']g'] = { function() vim.diagnostic.goto_next() end, "Next diagnostic" },
-              ['<C-M-K>'] = { function() vim.diagnostic.open_float() end, "Show diagnostic" },
-              ['<leader>/'] = { '<cmd>let @/ = ""<cr>', "Clear search pattern register" },
-              ['<leader>?'] = { '<cmd>WhichKey<cr>', "Open which-key hints" },
+            wk.setup()
+            wk.add({
+              { '<C-h>', '<C-w>h', desc = "Move to left window"},
+              { '<C-j>', '<C-w>j', desc = "Move to down window"},
+              { '<C-k>', '<C-w>k', desc = "Move to up window"},
+              { '<C-l>', '<C-w>l', desc = "Move to right window"},
+              { '[g', function() vim.diagnostic.goto_prev() end, desc = "Previous diagnostic" },
+              { ']g', function() vim.diagnostic.goto_next() end, desc = "Next diagnostic" },
+              { '<C-M-K>', function() vim.diagnostic.open_float() end, desc = "Show diagnostic" },
+              { '<leader>/', '<cmd>let @/ = ""<cr>', desc = "Clear search pattern register" },
+              { '<leader>?', '<cmd>WhichKey<cr>', desc = "Open which-key hints" },
+              { 'g', group = '+goto' },
             })
-            EOF
           '';
         }
 
-        playground
         {
           plugin = nvim-treesitter.withAllGrammars;
-          config = /* vim */ ''
-            lua <<EOF
-            require('nvim-treesitter.configs').setup {
-              highlight = {
-                enable = true,
-              },
-              indent = {
-                enable = true,
-              },
-              playground = {
-                enable = true,
-              },
-              query_linter = {
-                enable = true,
-              },
-            }
-            vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
-            EOF
+          type = "lua";
+          config = /* lua */ ''
+            vim.api.nvim_create_autocmd('FileType', {
+              callback = function(event)
+                -- check that a treesitter parser is available for the buffer
+                local filetype = vim.bo[event.buf].filetype
+                local lang = vim.treesitter.language.get_lang(filetype)
+                if vim.treesitter.language.add(lang, {}) then
+                  -- highlighting
+                  vim.treesitter.start()
+                  -- folding
+                  vim.wo[0][0].foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+                  vim.wo[0][0].foldmethod = 'expr'
+                  -- TODO:
+                  -- indendation
+                  -- vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
+              end,
+            })
           '';
         }
         {
           plugin = nvim-ts-context-commentstring;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('ts_context_commentstring').setup {
               enable_autocmd = false,
               languages = {
                 query = '; %s',
               }
             }
-            EOF
           '';
         }
         {
           plugin = comment-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('Comment').setup({
               pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
             })
-            EOF
           '';
         }
 
         cmp-nvim-lsp
         {
           plugin = nvim-lspconfig;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
             lsp_on_attach = function(client, bufnr)
-              wk.register({
-                g = {
-                  name = '+goto',
-                  d = { function() vim.lsp.buf.definition() end, "LSP definition" },
-                  D = { function() vim.lsp.buf.declaration() end, "LSP declaration" },
-                  t = { function() vim.lsp.buf.type_definition() end, "LSP type definition" },
-                  i = { function() vim.lsp.buf.implementation() end, "LSP implementations" },
-                  r = { function() vim.lsp.buf.references() end, "LSP references" },
-                },
-                K = { function() vim.lsp.buf.hover() end, "Show LSP information" },
-                ['<M-k>'] = { function() vim.lsp.buf.signature_help() end, "Show LSP signature help" },
-              }, {
-                buffer = bufnr,
+              wk.add({
+                {
+                  buffer = bufnr,
+                  { 'gd', function() vim.lsp.buf.definition() end, desc = "LSP definition" },
+                  { 'gD', function() vim.lsp.buf.declaration() end, desc = "LSP declaration" },
+                  { 'gt', function() vim.lsp.buf.type_definition() end, desc = "LSP type definition" },
+                  { 'gi', function() vim.lsp.buf.implementation() end, desc = "LSP implementations" },
+                  { 'K', function() vim.lsp.buf.hover() end, desc = "Show LSP information" },
+                  { '<M-k>', function() vim.lsp.buf.signature_help() end, desc = "Show LSP signature help" },
+                }
               })
               vim.api.nvim_create_autocmd({'BufWritePre'}, {
                 pattern = '*',
@@ -149,10 +153,8 @@ in
               })
             end
 
-            local lspconfig = require('lspconfig')
-
-            lspconfig.lua_ls.setup {
-              cmd = { '${pkgs.luaPackages.lua-lsp}/bin/lua-language-server'},
+            vim.lsp.config('lua_ls', {
+              cmd = { '${pkgs.luaPackages.lua-lsp}/bin/lua-lsp' },
               on_attach = lsp_on_attach,
               capabilities = lsp_capabilities,
               on_init = function(client)
@@ -179,25 +181,39 @@ in
                 end
                 return true
               end
-            }
+            })
+            vim.lsp.enable('lua_ls')
 
-            lspconfig.pyright.setup {
+            vim.lsp.config('pyright', {
               cmd = { '${pkgs.pyright}/bin/pyright-langserver', '--stdio' },
               on_attach = lsp_on_attach,
               capabilities = lsp_capabilities,
-            }
+            })
+            vim.lsp.enable('pyright')
 
-            lspconfig.rust_analyzer.setup {
+            vim.lsp.config('rust_analyzer', {
               on_attach = function(client, bufnr)
                 lsp_on_attach(client, bufnr)
-                wk.register({
-                  name = '+rust-cargo',
-                  r = { '<cmd>FloatermNew --autoclose=0 cargo run<cr>', "cargo run" },
-                  t = { '<cmd>FloatermNew --autoclose=0 cargo test --all --all-features<cr>', "cargo test" },
-                  c = { '<cmd>FloatermNew --autoclose=0 cargo clippy --all --all-features --all-targets<cr>', "cargo clippy" },
-                }, {
-                  prefix = '<leader>r',
-                  buffer = bufnr,
+                wk.add({
+                  {
+                    buffer = bufnr,
+                    { '<leader>r', group = "+cargo" },
+                    {
+                      '<leader>rr',
+                      '<cmd>FloatermNew --autoclose=0 cargo run<cr>',
+                      desc = "cargo run",
+                    },
+                    {
+                      '<leader>rt',
+                      '<cmd>FloatermNew --autoclose=0 cargo test --all --all-features<cr>',
+                      desc = "cargo test",
+                    },
+                    {
+                      '<leader>rc',
+                      '<cmd>FloatermNew --autoclose=0 cargo clippy --all --all-features --all-targets<cr>',
+                      desc = "cargo clippy",
+                    },
+                  },
                 })
               end,
               capabilities = lsp_capabilities,
@@ -212,27 +228,33 @@ in
                   },
                 },
               },
-            }
+            })
+            vim.lsp.enable('rust_analyzer')
 
-            lspconfig.marksman.setup {
-              cmd = { '${pkgs.marksman}/bin/marksman', 'server' },
-            }
+            vim.lsp.config('marksman', {
+                cmd = { '${pkgs.marksman}/bin/marksman', 'server' },
+            })
+            vim.lsp.enable('marksman')
 
-            lspconfig.nil_ls.setup {
+            vim.lsp.config('nil_ls', {
               cmd = { '${pkgs.nil}/bin/nil' },
               on_attach = function(client, bufnr)
                 lsp_on_attach(client, bufnr)
-                wk.register({
-                  name = '+nix',
-                  c = { '<cmd>FloatermNew --autoclose=0 nix flake check<cr>', "flake check" },
-                }, {
-                  prefix = '<leader>n',
-                  buffer = bufnr,
+                wk.add({
+                  {
+                    buffer = bufnr,
+                    { '<leader>n', group = '+nix' },
+                    {
+                      '<leader>nc',
+                      '<cmd>FloatermNew --autoclose=0 nix flake check<cr>',
+                      desc = "flake check",
+                    },
+                  },
                 })
               end,
               capabilities = lsp_capabilities,
-            }
-            EOF
+            })
+            vim.lsp.enable('nil_ls')
           '';
         }
 
@@ -246,16 +268,15 @@ in
         cmp-nvim-lua
         {
           plugin = cmp-git;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('cmp_git').setup()
-            EOF
           '';
         }
         {
           plugin = nvim-cmp;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             local cmp = require('cmp')
             cmp.setup {
               mapping = cmp.mapping.preset.insert({
@@ -313,14 +334,13 @@ in
                 documentation = cmp.config.window.bordered(),
               },
             }
-            EOF
           '';
         }
 
         {
           plugin = onenord-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('onenord').setup({
               theme = 'dark',
               styles = {
@@ -333,7 +353,6 @@ in
                 background = true,
               },
             })
-            EOF
           '';
         }
 
@@ -342,8 +361,8 @@ in
         telescope-lsp-handlers-nvim
         {
           plugin = telescope-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             local telescope = require('telescope')
             local actions = require('telescope.actions')
             telescope.setup {
@@ -379,29 +398,26 @@ in
             telescope.load_extension('file_browser')
             telescope.load_extension('lsp_handlers')
             local builtin = require('telescope.builtin')
-            wk.register({
-              p = {
-                name = '+pick',
-                p = { function() builtin.find_files() end, "Workspace files" },
-                f = { function() builtin.live_grep() end, "Workspace line grep" },
-                b = { function() builtin.buffers() end, "Open buffers" },
-                B = { function() builtin.current_buffer_fuzzy_find() end, "Current buffer line grep" },
-                s = { function() builtin.lsp_dynamic_workspace_symbols() end, "Workspace LSP symbols" },
-                h = { function() builtin.help_tags() end, "Help tags" },
-                F = { function() builtin.filetypes() end, "File types" },
-                k = { function() builtin.keymaps() end, "Keymaps" },
-                g = { function() builtin.git_status() end, "Git status" },
-                P = { function() builtin.builtin() end, "Built-in telescope pickers" },
-              },
-              g = { function() builtin.diagnostics() end, "Show diagnostics" },
-              f = { function() telescope.extensions.file_browser.file_browser() end, "Show file browser" },
-            }, {
-              prefix = '<leader>',
+            wk.add({
+              { '<leader>g', function() builtin.diagnostics() end, desc = "Show diagnostics" },
+              { '<leader>f', function() telescope.extensions.file_browser.file_browser() end, desc = "Show file browser" },
+              { '<leader>p', group = '+pickers' },
+              { '<leader>pp', function() builtin.find_files() end, desc = "Workspace files" },
+              { '<leader>pf', function() builtin.live_grep() end, desc = "Workspace line grep" },
+              { '<leader>pb', function() builtin.buffers() end, desc = "Open buffers" },
+              { '<leader>pB', function() builtin.current_buffer_fuzzy_find() end, desc = "Current buffer line grep" },
+              { '<leader>ps', function() builtin.lsp_dynamic_workspace_symbols() end, desc = "Workspace LSP symbols" },
+              { '<leader>ph', function() builtin.help_tags() end, desc = "Help tags" },
+              { '<leader>pF', function() builtin.filetypes() end, desc = "File types" },
+              { '<leader>pk', function() builtin.keymaps() end, desc = "Keymaps" },
+              { '<leader>pg', function() builtin.git_status() end, desc = "Git status" },
+              { '<leader>pP', function() builtin.builtin() end, desc = "Built-in telescope pickers" },
             })
+            -- TODO:
             -- attachment-picker
             vim.api.nvim_create_autocmd({'FileType'}, {
               pattern = 'mail',
-              callback = function()
+              callback = function(event)
                 local actions = require('telescope.actions')
                 local action_sets = require('telescope.actions.set')
                 local state = require('telescope.actions.state')
@@ -420,129 +436,115 @@ in
                   local position = save_cursor()
                   telescope.extensions.file_browser.file_browser {
                     attach_mappings = function(prompt_buf, _)
-                      action_sets.select:replace_if(function()
-                        local entry = state.get_selected_entry()
-                        return entry and not entry.Path:is_dir()
-                      end, function()
-                        local selections = {}
-                        utils.map_selections(prompt_buf, function(entry, _)
-                          local path = string.format("Attach: %s", entry.value)
-                          table.insert(selections, path)
-                        end)
-                        actions.close(prompt_buf)
-                        vim.api.nvim_win_set_cursor(0, { 1, 0 })
-                        vim.fn.search("Subject:", "c")
-                        vim.api.nvim_put(selections, "l", true, false)
-                        restore_cursor(position)
-                      end)
+                      action_sets.select:replace_if(
+                        function()
+                          local entry = state.get_selected_entry()
+                          return entry and not entry.Path:is_dir()
+                        end,
+                        function()
+                          local selections = {}
+                          utils.map_selections(prompt_buf, function(entry, _)
+                            local path = string.format("Attach: %s", entry.value)
+                            table.insert(selections, path)
+                          end)
+                          actions.close(prompt_buf)
+                          vim.api.nvim_win_set_cursor(0, { 1, 0 })
+                          vim.fn.search("Subject:", "c")
+                          vim.api.nvim_put(selections, "l", true, false)
+                          restore_cursor(position)
+                        end
+                      )
                       return true
                     end
                   }
                 end
-                wk.register({
-                  a = { function() picker() end, "Add attachments" },
-                }, {
-                  buffer = 0,
-                  prefix = '<leader>',
+                wk.add({
+                  { '<leader>a', function() picker() end, desc = "Add attachments", buffer = event.buf },
                 })
               end,
             })
-            EOF
           '';
         }
 
         {
           plugin = pears-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('pears').setup()
-            EOF
           '';
         }
 
         {
           plugin = nvim-surround;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('nvim-surround').setup({})
-            EOF
           '';
         }
 
         {
           plugin = vim-floaterm;
-          config = /* vim */ ''
-            lua <<EOF
-            wk.register({
-              t = {
-                name = '+terminal',
-                t = { '<cmd>FloatermNew<cr>', "Shell" },
-                n = { '<cmd>FloatermNew nix repl<cr>', "nix repl" },
-              },
-            }, {
-              prefix = '<leader>',
+          type = "lua";
+          config = /* lua */ ''
+            wk.add({
+              { '<leader>t', group = '+terminals' },
+              { '<leader>tt', '<cmd>FloatermNew<cr>', desc = "shell" },
+              { '<leader>tn', '<cmd>FloatermNew nix repl<cr>', desc = "nix repl" },
             })
-            EOF
           '';
         }
 
         {
           plugin = gitsigns-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('gitsigns').setup{
               on_attach = function(bufnr)
                 local gs = package.loaded.gitsigns
-                wk.register({
-                  ['[c'] = {
-                    function()
-                      if vim.wo.diff then return '[c' end
-                      vim.schedule(function() gs.prev_hunk() end)
-                      return '<Ignore>'
-                    end,
-                    "Previous unstaged hunk",
-                    expr = true,
+                wk.add({
+                  {
+                    buffer = bufnr,
+                    {
+                      '[c', function()
+                        if vim.wo.diff then return '[c' end
+                        vim.schedule(function() gs.prev_hunk() end)
+                        return '<Ignore>'
+                      end,
+                      desc = "Previous unstaged hunk",
+                    },
+                    {
+                      ']c', function()
+                        if vim.wo.diff then return ']c' end
+                        vim.schedule(function() gs.next_hunk() end)
+                        return '<Ignore>'
+                      end,
+                      desc = "Next unstaged hunk",
+                    },
+                    { '<leader>h', group = '+git' },
+                    {
+                      mode = { 'n', 'v' },
+                      { '<leader>hs', '<cmd>Gitsigns stage_hunk<cr>', desc = "Stage hunk", mode = {'n', 'v'} },
+                      { '<leader>hr', '<cmd>Gitsigns reset_hunk<cr>', desc = "Reset hunk", mode = {'n', 'v'} },
+                    },
+                    { '<leader>hS', function() gs.stage_buffer() end, desc = "Stage buffer" },
+                    { '<leader>hR', function() gs.reset_buffer() end, desc = "Reset buffer" },
+                    { '<leader>hu', function() gs.undo_stage_hunk() end, desc = "Undo stage hunk" },
+                    { '<leader>hp', function() gs.preview_hunk() end, desc = "Preview hunk" },
+                    { '<leader>hb', function() gs.blame_line({full=true}) end, desc = "Show blame" },
+                    { '<leader>hB', function() gs.toggle_current_line_blame() end, desc = "Toggle blame hints" },
+                    { '<leader>hd', function() gs.diffthis() end, desc = "Diff current buffer" },
+                    { '<leader>hD', function() gs.toggle_deleted() end, desc = "Toggle deleted" },
                   },
-                  [']c'] = {
-                    function()
-                      if vim.wo.diff then return ']c' end
-                      vim.schedule(function() gs.next_hunk() end)
-                      return '<Ignore>'
-                    end,
-                    "Next unstaged hunk",
-                    expr = true,
-                  },
-                }, {
-                  buffer = bufnr,
-                })
-                wk.register({
-                  h = {
-                    name = '+git',
-                    s = { '<cmd>Gitsigns stage_hunk<cr>', "Stage hunk", mode = {'n', 'v'} },
-                    r = { '<cmd>Gitsigns reset_hunk<cr>', "Reset hunk", mode = {'n', 'v'} },
-                    S = { function() gs.stage_buffer() end, "Stage buffer" },
-                    R = { function() gs.reset_buffer() end, "Reset buffer" },
-                    u = { function() gs.undo_stage_hunk() end, "Undo stage hunk" },
-                    p = { function() gs.preview_hunk() end, "Preview hunk" },
-                    b = { function() gs.blame_line({full=true}) end, "Show blame" },
-                    B = { function() gs.toggle_current_line_blame() end, "Toggle blame hints" },
-                    d = { function() gs.diffthis() end, "Diff current buffer" },
-                    D = { function() gs.toggle_deleted() end, "Toggle deleted" },
-                  }
-                }, {
-                  prefix = '<leader>',
-                  buffer = bufnr,
                 })
               end
             }
-            EOF
           '';
         }
 
         {
           plugin = lualine-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('lualine').setup {
               options = {
                 theme = 'onenord',
@@ -554,14 +556,13 @@ in
               },
             }
             vim.o.cmdheight = 0
-            EOF
           '';
         }
 
         {
           plugin = fidget-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('fidget').setup {
               notification = {
                 window = {
@@ -570,32 +571,25 @@ in
                 },
               },
             }
-            EOF
           '';
         }
 
         {
           plugin = octo-nvim;
-          config = /* vim */ ''
-            lua <<EOF
+          type = "lua";
+          config = /* lua */ ''
             require('octo').setup {}
-            wk.register({
-              o = {
-                name = '+octo',
-                i = { '<cmd>Octo issue list<cr>', 'List github issues' },
-                p = { '<cmd>Octo pr list<cr>', 'List github pull-requests' },
-                a = { '<cmd>Octo actions<cr>', 'List available octo actions' },
-              }
-            }, {
-              prefix = '<leader>',
+            wk.add({
+              { '<leader>o', group = '+octo' },
+              { '<leader>oi', '<cmd>Octo issue list<cr>', desc = 'List github issues' },
+              { '<leader>op', '<cmd>Octo pr list<cr>', desc = 'List github pull-requests' },
+              { '<leader>oa', '<cmd>Octo actions<cr>', desc = 'List available octo actions' },
             })
-            EOF
           '';
         }
       ];
 
-      extraConfig = /* vim */ ''
-        lua <<EOF
+      initLua = /* lua */ ''
         vim.o.expandtab = true
         vim.o.hidden = true
         vim.o.ignorecase = true
@@ -627,7 +621,6 @@ in
           update_in_insert = true,
         })
         vim.o.signcolumn = 'yes'
-        EOF
       '';
     };
   };

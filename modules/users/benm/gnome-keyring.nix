@@ -11,7 +11,7 @@ in
   config = lib.mkIf (cfg.enable) {
     home.packages = with pkgs; [
       libsecret
-      gnome.seahorse
+      seahorse
     ];
 
     services.gnome-keyring.enable = true;

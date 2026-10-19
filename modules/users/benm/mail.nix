@@ -354,7 +354,7 @@ in
               set header_cache = "${cacheDir}/headers"
               set message_cachedir = "${cacheDir}/bodies"
               #set tmpdir = "${runtimeDir}/tmp"
-              set attach_save_dir = "${config.xdg.userDirs.extraConfig.XDG_ATTACH_DIR}"
+              set attach_save_dir = "${config.xdg.userDirs.extraConfig.ATTACH}"
 
               set mailcap_path = "${configDir}/mailcap"
               set signature = "${configDir}/signature"
