@@ -21,6 +21,7 @@ in
     ./cachix.nix
     ./colorscheme.nix
     ./drawio.nix
+    ./firefox.nix
     ./fonts.nix
     ./gnome-keyring.nix
     ./gpg.nix
@@ -97,7 +98,6 @@ in
         ".cache"
         ".local/share"
         ".local/state"
-        ".mozilla/firefox/default"
         ".ssh"
       ];
     };
@@ -116,6 +116,7 @@ in
       };
     };
     drawio.enable = true;
+    firefox.enable = true;
     fonts = {
       enable = true;
       packages = with pkgs.nerd-fonts; [ sauce-code-pro ];
@@ -281,11 +282,6 @@ in
   programs.eza = {
     enable = true;
     enableBashIntegration = true;
-  };
-
-  programs.firefox = {
-    enable = true;
-    profiles.default = { };
   };
 
   programs.fzf =
