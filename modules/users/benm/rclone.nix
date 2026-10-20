@@ -1,9 +1,14 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.rclone;
   configPath = "${config.xdg.configHome}/rclone/rclone.conf";
-  rclone-passwd = pkgs.writeShellScriptBin "rclone-passwd" /* bash  */ ''
+  rclone-passwd = pkgs.writeShellScriptBin "rclone-passwd" /* bash */ ''
     set -euo pipefail
 
     secret_tool="${pkgs.libsecret}/bin/secret-tool"
@@ -49,7 +54,10 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ cfg.package rclone-passwd ];
+    home.packages = [
+      cfg.package
+      rclone-passwd
+    ];
     local.persistence.directories = [ ".config/rclone" ];
   };
 }

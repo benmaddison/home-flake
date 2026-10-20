@@ -1,4 +1,4 @@
-{ self, stdenv, fetchFromGitHub }:
+{ stdenv, fetchFromGitHub }:
 
 stdenv.mkDerivation rec {
   pname = "nord-rofi-theme";

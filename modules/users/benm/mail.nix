@@ -1,204 +1,238 @@
-{ self }: { config, options, pkgs, lib, ... }:
+{
+  config,
+  options,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.mail;
   accounts = lib.attrValues cfg;
-  move-mail = with pkgs; writeShellScriptBin "move-mail" /* bash */ ''
-    set -euo pipefail
+  move-mail =
+    with pkgs;
+    writeShellScriptBin "move-mail" /* bash */ ''
+      set -euo pipefail
 
-    export PATH="${lib.makeBinPath [ coreutils hostname util-linux fd ]}"
+      export PATH="${
+        lib.makeBinPath [
+          coreutils
+          hostname
+          util-linux
+          fd
+        ]
+      }"
 
-    usage() {
-        echo "usage:"
-        echo "$0 -s <source-file> -d <dest-maildir>"
-    }
+      usage() {
+          echo "usage:"
+          echo "$0 -s <source-file> -d <dest-maildir>"
+      }
 
-    fail() {
-        echo "error: $1"
-        usage
-        exit 1
-    }
+      fail() {
+          echo "error: $1"
+          usage
+          exit 1
+      }
 
-    while getopts 's:d:h' arg; do
-        case "$arg" in
-            s)  src_path="$OPTARG";;
-            d)  dst_dir="$OPTARG/cur";;
-            h)  usage && exit 0;;
-            *)  fail "invalid option";;
-        esac
-    done
-    shift $(( OPTIND - 1 ))
+      while getopts 's:d:h' arg; do
+          case "$arg" in
+              s)  src_path="$OPTARG";;
+              d)  dst_dir="$OPTARG/cur";;
+              h)  usage && exit 0;;
+              *)  fail "invalid option";;
+          esac
+      done
+      shift $(( OPTIND - 1 ))
 
-    if [ ! -f "$src_path" ]; then
-        fail "source file '$src_path' does not exist"
-    fi
+      if [ ! -f "$src_path" ]; then
+          fail "source file '$src_path' does not exist"
+      fi
 
-    if [ ! -d "$dst_dir" ]; then
-        fail "destination directory '$dest_dir' does not exist"
-    fi
+      if [ ! -d "$dst_dir" ]; then
+          fail "destination directory '$dest_dir' does not exist"
+      fi
 
-    hostname=$(hostname -s)
-    flags=$(basename "$src_path" | cut -d':' -f2 -s)
+      hostname=$(hostname -s)
+      flags=$(basename "$src_path" | cut -d':' -f2 -s)
 
-    i=0
-    max_iter=100
-    while true; do
-        uuid="$(uuidgen -r)"
-        unique="$uuid.$hostname"
-        if ! fd --search-path "$dst_dir" --has-results -- "^$unique"; then
-            break
-        fi
-        if [ "$i" -gt "$max_iter" ]; then
-            fail "maximum number of iterations exceeded"
-        fi
-        let i++
-    done
+      i=0
+      max_iter=100
+      while true; do
+          uuid="$(uuidgen -r)"
+          unique="$uuid.$hostname"
+          if ! fd --search-path "$dst_dir" --has-results -- "^$unique"; then
+              break
+          fi
+          if [ "$i" -gt "$max_iter" ]; then
+              fail "maximum number of iterations exceeded"
+          fi
+          let i++
+      done
 
-    dst_path="$dst_dir/$unique:$flags"
-    echo "moving $src_path to $dst_path"
-    mv "$src_path" "$dst_path"
+      dst_path="$dst_dir/$unique:$flags"
+      echo "moving $src_path to $dst_path"
+      mv "$src_path" "$dst_path"
 
-    exit 0
-  '';
-  notmuch-move = with pkgs; writeShellScriptBin "notmuch-move" /* bash */ ''
-    set -euo pipefail
+      exit 0
+    '';
+  notmuch-move =
+    with pkgs;
+    writeShellScriptBin "notmuch-move" /* bash */ ''
+      set -euo pipefail
 
-    export PATH="${lib.makeBinPath [ coreutils notmuch findutils move-mail ]}"
+      export PATH="${
+        lib.makeBinPath [
+          coreutils
+          notmuch
+          findutils
+          move-mail
+        ]
+      }"
 
-    usage() {
-        echo "usage:"
-        echo "$0 [-n] [-r <tag> ...] -d <destination-mailbox> [--] <search-terms>"
-        echo ""
-        echo "-d <destination-mailbox>  Destination maildir folder relative"
-        echo "                          to `database.mailroot`."
-        echo "-n                        Run `notmuch new --no-hooks` before"
-        echo "                          moving."
-        echo "-r <tag> ...              Remove <tag> from matched messages"
-        echo "                          after moving files."
-        echo "-h                        Print usage details."
-        echo "<search-terms>            Search terms to pass to `notmuch search`."
-        echo ""
-    }
+      usage() {
+          echo "usage:"
+          echo "$0 [-n] [-r <tag> ...] -d <destination-mailbox> [--] <search-terms>"
+          echo ""
+          echo "-d <destination-mailbox>  Destination maildir folder relative"
+          echo "                          to `database.mailroot`."
+          echo "-n                        Run `notmuch new --no-hooks` before"
+          echo "                          moving."
+          echo "-r <tag> ...              Remove <tag> from matched messages"
+          echo "                          after moving files."
+          echo "-h                        Print usage details."
+          echo "<search-terms>            Search terms to pass to `notmuch search`."
+          echo ""
+      }
 
-    fail() {
-        echo "error: $1"
-        usage
-        exit 1
-    }
+      fail() {
+          echo "error: $1"
+          usage
+          exit 1
+      }
 
-    update_paths() {
-        notmuch new --no-hooks --quiet
-    }
+      update_paths() {
+          notmuch new --no-hooks --quiet
+      }
 
-    unset pre_new
-    remove_tags=""
+      unset pre_new
+      remove_tags=""
 
-    while getopts 'd:nr:h-' arg; do
-        case "$arg" in
-            d)  dst_maildir="$OPTARG";;
-            n)  pre_new=1;;
-            r)  for tag in $OPTARG; do
-                    remove_tags+=" -$tag"
-                done;;
-            h)  usage && exit 0;;
-            -)  break;;
-            *)  fail "invalid option";;
-        esac
-    done
-    shift $(( OPTIND - 1 ))
+      while getopts 'd:nr:h-' arg; do
+          case "$arg" in
+              d)  dst_maildir="$OPTARG";;
+              n)  pre_new=1;;
+              r)  for tag in $OPTARG; do
+                      remove_tags+=" -$tag"
+                  done;;
+              h)  usage && exit 0;;
+              -)  break;;
+              *)  fail "invalid option";;
+          esac
+      done
+      shift $(( OPTIND - 1 ))
 
-    search_terms=$@
+      search_terms=$@
 
-    root="$(notmuch config get database.mailroot)"
-    if [ -z "$root" ]; then
-        root="$(notmuch config get database.path)"
-    fi
-    if [ -z "$root" ]; then
-        fail "could not determine root maildir store"
-    fi
+      root="$(notmuch config get database.mailroot)"
+      if [ -z "$root" ]; then
+          root="$(notmuch config get database.path)"
+      fi
+      if [ -z "$root" ]; then
+          fail "could not determine root maildir store"
+      fi
 
-    dst_dir="$root/$dst_maildir"
-    if [ ! -d "$dst_dir/cur" ]; then
-        fail "destination directory '$dst_dir' is not a valid maildir"
-    fi
+      dst_dir="$root/$dst_maildir"
+      if [ ! -d "$dst_dir/cur" ]; then
+          fail "destination directory '$dst_dir' is not a valid maildir"
+      fi
 
-    if [ -v pre_new ]; then update_paths; fi
+      if [ -v pre_new ]; then update_paths; fi
 
-    notmuch search \
-        --output=files \
-        --format=text0 \
-        -- "$search_terms" \
-    | xargs \
-        --null \
-        --max-procs="$(nproc)" \
-        --no-run-if-empty \
-        -I {} \
-        move-mail -d "$dst_dir" -s "{}"
+      notmuch search \
+          --output=files \
+          --format=text0 \
+          -- "$search_terms" \
+      | xargs \
+          --null \
+          --max-procs="$(nproc)" \
+          --no-run-if-empty \
+          -I {} \
+          move-mail -d "$dst_dir" -s "{}"
 
-    update_paths
+      update_paths
 
-    if [ -n "$remove_tags" ]; then
-        notmuch tag $remove_tags -- "folder:$dst_maildir and ($search_terms)"
-    fi
+      if [ -n "$remove_tags" ]; then
+          notmuch tag $remove_tags -- "folder:$dst_maildir and ($search_terms)"
+      fi
 
-    exit 0
-  '';
+      exit 0
+    '';
   notmuch-move-all = pkgs.writeShellScriptBin "notmuch-move-all" /* bash */ ''
-    ${lib.concatStrings (lib.concatMap (account:
-      lib.mapAttrsToList (tag: folder: /* bash */ ''
-        ${notmuch-move}/bin/notmuch-move \
-          -r "move/${tag}" \
-          -d "${account.name}/${folder}" \
-          -- tag:move/${tag} and tag:account/${account.name}
-      '') (account.folders // account.extraFolders)) accounts)}
+    ${lib.concatStrings (
+      lib.concatMap (
+        account:
+        lib.mapAttrsToList (tag: folder: /* bash */ ''
+          ${notmuch-move}/bin/notmuch-move \
+            -r "move/${tag}" \
+            -d "${account.name}/${folder}" \
+            -- tag:move/${tag} and tag:account/${account.name}
+        '') (account.folders // account.extraFolders)
+      ) accounts
+    )}
   '';
 in
 {
   options = {
     local.mail = lib.mkOption {
-      type = with lib.types; attrsOf (submodule ({ name, ... }: {
-        options =
-          let
-            accountOpts = options.accounts.email.accounts.type.getSubOptions [ ];
-            wrap = name: args: self.lib.wrapOption accountOpts.${name} args;
-          in
-          {
-            name = lib.mkOption {
-              type = lib.types.str;
-              default = name;
-            };
-            address = wrap "address" { };
-            aliases = wrap "aliases" { };
-            flavor = wrap "flavor" { };
-            folders = wrap "folders" { };
-            primary = wrap "primary" { };
-            realName = wrap "realName" { default = "Ben Maddison"; };
-            imap = wrap "imap" { };
-            smtp = wrap "smtp" { };
-            extraFolders = lib.mkOption {
-              type = lib.types.submodule {
-                freeformType = with lib.types; attrsOf str;
-                options =
-                  let
-                    folderOpt = default: lib.mkOption { inherit default; };
-                  in
-                  {
-                    archive = folderOpt "Archive";
-                    spam = folderOpt "Spam";
+      type =
+        with lib.types;
+        attrsOf (
+          submodule (
+            { name, ... }: {
+              options =
+                let
+                  accountOpts = options.accounts.email.accounts.type.getSubOptions [ ];
+                  wrap = name: args: lib.wrapOption accountOpts.${name} args;
+                in
+                {
+                  name = lib.mkOption {
+                    type = lib.types.str;
+                    default = name;
                   };
-              };
-              default = { };
-            };
-            oauth2 = lib.mkOption {
-              type = lib.types.bool;
-              default = false;
-            };
-            mbsyncPipelineDepth = lib.mkOption {
-              type = with lib.types; nullOr int;
-              default = null;
-            };
-          };
-      }));
+                  address = wrap "address" { };
+                  aliases = wrap "aliases" { };
+                  flavor = wrap "flavor" { };
+                  folders = wrap "folders" { };
+                  primary = wrap "primary" { };
+                  realName = wrap "realName" { default = "Ben Maddison"; };
+                  imap = wrap "imap" { };
+                  smtp = wrap "smtp" { };
+                  extraFolders = lib.mkOption {
+                    type = lib.types.submodule {
+                      freeformType = with lib.types; attrsOf str;
+                      options =
+                        let
+                          folderOpt = default: lib.mkOption { inherit default; };
+                        in
+                        {
+                          archive = folderOpt "Archive";
+                          spam = folderOpt "Spam";
+                        };
+                    };
+                    default = { };
+                  };
+                  oauth2 = lib.mkOption {
+                    type = lib.types.bool;
+                    default = false;
+                  };
+                  mbsyncPipelineDepth = lib.mkOption {
+                    type = with lib.types; nullOr int;
+                    default = null;
+                  };
+                };
+            }
+          )
+        );
     };
   };
 
@@ -222,7 +256,7 @@ in
 
           passwordCommand =
             if account.oauth2 then
-              "${self.packages.x86_64-linux.oauth2ms}/bin/oauth2ms"
+              "${pkgs.oauth2ms}/bin/oauth2ms"
               + lib.optionalString (config.local.gpg.enable) " -e ${account.address}"
             else
               "${pkgs.libsecret}/bin/secret-tool lookup mail ${name} address ${account.address}";
@@ -239,24 +273,29 @@ in
             enable = true;
             create = "both";
             expunge = "both";
-            patterns =
-              lib.concatMap
-                (f: [ "${f}" "${f}/*" ])
-                (lib.attrValues (account.folders // account.extraFolders));
+            patterns = lib.concatMap (f: [
+              "${f}"
+              "${f}/*"
+            ]) (lib.attrValues (account.folders // account.extraFolders));
             extraConfig.channel.CopyArrivalDate = "yes";
             extraConfig.account.AuthMechs = lib.mkIf (account.oauth2) "XOAUTH2";
-            extraConfig.account.PipelineDepth =
-              lib.mkIf (account.mbsyncPipelineDepth != null) account.mbsyncPipelineDepth;
+            extraConfig.account.PipelineDepth = lib.mkIf (
+              account.mbsyncPipelineDepth != null
+            ) account.mbsyncPipelineDepth;
           };
 
         };
       in
       lib.mapAttrs mkEmailAccount cfg;
 
-    home.packages = [ notmuch-move notmuch-move-all ];
+    home.packages = [
+      notmuch-move
+      notmuch-move-all
+    ];
 
-    local.persistence.directories =
-      lib.mkIf (builtins.any (a: a.oauth2) (lib.attrValues cfg)) [ ".config/oauth2ms" ];
+    local.persistence.directories = lib.mkIf (builtins.any (a: a.oauth2) (lib.attrValues cfg)) [
+      ".config/oauth2ms"
+    ];
 
     programs.notmuch = {
       enable = true;
@@ -290,10 +329,12 @@ in
       postExec = "${pkgs.notmuch}/bin/notmuch new";
     };
     systemd.user.services.mbsync.Service.Environment = [
-      "SASL_PATH=${lib.concatStringsSep ":" [
-        "${pkgs.cyrus_sasl.out}/lib/sasl2"
-        "${self.packages.x86_64-linux.cyrus-sasl-xoauth2}/lib/sasl2"
-      ]}"
+      "SASL_PATH=${
+        lib.concatStringsSep ":" [
+          "${pkgs.cyrus_sasl.out}/lib/sasl2"
+          "${pkgs.cyrus-sasl-xoauth2}/lib/sasl2"
+        ]
+      }"
     ];
 
     programs.neomutt.enable = true;
@@ -325,19 +366,30 @@ in
             folders = account: account.folders // account.extraFolders;
             mailbox =
               let
-                virtual = [ "inbox" "archive" "spam" "trash" ];
+                virtual = [
+                  "inbox"
+                  "archive"
+                  "spam"
+                  "trash"
+                ];
               in
               account: tag: folder:
-                if builtins.elem tag virtual then ''
+              if builtins.elem tag virtual then
+                ''
                   virtual-mailboxes "${folder}" "notmuch://?query=folder:\"${account.name}/${folder}\""
-                '' else ''
+                ''
+              else
+                ''
                   mailboxes "+${account.name}/${folder}"
                 '';
-            mailboxes = account: [
-              ''
-                virtual-mailboxes "─[${account.name}]─" "notmuch://?query=tag:account/${account.name}"
-              ''
-            ] ++ lib.mapAttrsToList (mailbox account) (folders account);
+            mailboxes =
+              account:
+              [
+                ''
+                  virtual-mailboxes "─[${account.name}]─" "notmuch://?query=tag:account/${account.name}"
+                ''
+              ]
+              ++ lib.mapAttrsToList (mailbox account) (folders account);
             folderHook = account: ''
               folder-hook "${account.name}\." "source ${config.xdg.configHome}/${accountCfgPath account}"
             '';

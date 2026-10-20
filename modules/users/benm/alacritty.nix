@@ -1,4 +1,9 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.alacritty;
@@ -21,7 +26,12 @@ in
       inherit (cfg) enable package;
       settings = {
         colors = with config.local.colorscheme.hashHex; {
-          inherit primary normal bright dim;
+          inherit
+            primary
+            normal
+            bright
+            dim
+            ;
           search.matches = {
             background = normal.cyan;
             foreground = "CellBackground";

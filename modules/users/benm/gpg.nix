@@ -1,12 +1,19 @@
-{ self }: { config, options, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.local.gpg;
   keyIdRegex = "^0x[[:xdigit:]]{8}$";
-  keyIdOption = with lib; mkOption {
-    type = with types; nullOr (strMatching keyIdRegex);
-    default = null;
-  };
+  keyIdOption =
+    with lib;
+    mkOption {
+      type = with types; nullOr (strMatching keyIdRegex);
+      default = null;
+    };
 in
 {
   options.local.gpg = {

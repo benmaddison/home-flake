@@ -1,33 +1,55 @@
-{ self }:
+{ lib }:
+lib.extend (
+  final: prev: rec {
+    typeOf = option: option.type;
 
-let
-  lib = self.inputs.nixpkgs.lib;
+    typeOfValues =
+      option:
+      let
+        ty = typeOf option;
+      in
+      ty.nestedTypes.elemType;
 
-  typeOf = option: option.type;
+    wrapOption =
+      option:
+      { ... }@args:
+      lib.mkOption (
+        {
+          inherit (option) type default description;
+        }
+        // args
+      );
 
-  typeOfValues = option: let ty = typeOf option; in ty.nestedTypes.elemType;
+    filterFlatten =
+      root: set:
+      let
+        inherit (final)
+          isAttrs
+          nameValuePair
+          concatStringsSep
+          mapAttrsToList
+          listToAttrs
+          filter
+          ;
+        flattenEach =
+          path: key: value:
+          let
+            newPath = path ++ [ key ];
+          in
+          if isAttrs value then flatten newPath value else nameValuePair (concatStringsSep "." newPath) value;
+        flatten = path: set: final.flatten (mapAttrsToList (flattenEach path) set);
+      in
+      listToAttrs (filter (x: x.value != null) (flatten root set));
 
-  wrapOption = option: { ... } @ args: lib.mkOption ({
-    inherit (option) type default description;
-  } // args);
+    systemSourceLinksCommand = inputs: /* bash */ ''
+      mkdir -p $out/source/inputs
+      ${lib.concatStrings (
+        lib.mapAttrsToList (name: source: /* bash */ ''
+          ln -s ${source} $out/source/inputs/${name}
+        '') inputs
+      )}
+    '';
 
-  filterFlatten = root: set:
-    let
-      flattenEach = path: key: value:
-        let newPath = path ++ [ key ]; in
-        if lib.isAttrs value
-        then flatten newPath value
-        else lib.nameValuePair (lib.concatStringsSep "." newPath) value;
-      flatten = path: set:
-        lib.flatten (lib.mapAttrsToList (flattenEach path) set);
-    in
-    builtins.listToAttrs (builtins.filter (x: x.value != null) (flatten root set));
-
-in
-{
-  inherit filterFlatten typeOf typeOfValues wrapOption;
-
-  import = path: import path { inherit self; };
-
-  colors = import ./colors.nix;
-}
+    colors = import ./colors.nix;
+  }
+)

@@ -1,7 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    flake-utils.url = "github:numtide/flake-utils";
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,27 +16,25 @@
 
   outputs =
     { self, ... }@inputs:
+    let
+      lib = import ./lib { inherit (inputs.nixpkgs) lib; };
+      overlay = import ./pkgs/overlay.nix { };
+      nixosModules = import ./modules {
+        extraModules = [
+          inputs.impermanence.nixosModules.impermanence
+          inputs.home-manager.nixosModules.home-manager
+          ({ ... }: {
+            nixpkgs.overlays = [ overlay ];
+            system.systemBuilderCommands = lib.systemSourceLinksCommand inputs;
+          })
+        ];
+      };
+    in
     {
-      lib = import ./lib { inherit self; };
-
-      nixosConfigurations = self.lib.import ./systems;
-
-      nixosModules = self.lib.import ./modules;
-    }
-
-    // inputs.flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = inputs.nixpkgs.legacyPackages.${system};
-        callPackage = path: pkgs.callPackage path { inherit self; };
-      in
-
-      {
-        packages = {
-          oauth2ms = callPackage ./pkgs/oauth2ms.nix;
-          cyrus-sasl-xoauth2 = callPackage ./pkgs/cyrus-sasl-xoauth2.nix;
-          nord-rofi-theme = callPackage ./pkgs/nord-rofi-theme.nix;
-        };
-      }
-    );
+      inherit lib;
+      overlays.default = overlay;
+      nixosConfigurations = import ./systems {
+        inherit lib nixosModules;
+      };
+    };
 }

@@ -1,4 +1,8 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.fonts;
@@ -23,7 +27,8 @@ in
     home.packages = cfg.packages;
 
     programs =
-      let pangoSpec = with cfg; "${family} Regular ${toString size}";
+      let
+        pangoSpec = with cfg; "${family} Regular ${toString size}";
       in
       {
         alacritty.settings.font = {

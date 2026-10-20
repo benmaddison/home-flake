@@ -1,21 +1,18 @@
-{ self }:
-
+{
+  lib,
+  nixosModules,
+}:
 let
-
-  systems = {
-    iolcus.system = "x86_64-linux";
-  };
-
-  makeSystems = let
-    lib = self.inputs.nixpkgs.lib;
-    modules = name:
-      [ (./. + "/${name}.nix") ]
-      ++ builtins.attrValues self.nixosModules;
-    makeSystem = name: sys: lib.nixosSystem {
-      inherit (sys) system;
-      modules = modules name;
-      specialArgs = { inherit self; };
-    };
-  in systems: builtins.mapAttrs makeSystem systems;
-
-in makeSystems systems
+  systems = [
+    ./iolcus.nix
+  ];
+  mkSystem =
+    path:
+    let
+      modules = [ path ] ++ nixosModules;
+      configuration = lib.nixosSystem { inherit modules; };
+      hostname = configuration.config.networking.hostName;
+    in
+    lib.nameValuePair hostname configuration;
+in
+lib.listToAttrs (map mkSystem systems)

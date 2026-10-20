@@ -1,4 +1,9 @@
-{ self }: { config, pkgs, lib, system, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.rust;

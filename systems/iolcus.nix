@@ -1,5 +1,4 @@
 {
-  self,
   config,
   pkgs,
   lib,
@@ -18,10 +17,12 @@ let
   insecurePkgs = [ "electron-25.9.0" ];
 in
 {
-  imports = with self.inputs; [
+  imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
-    impermanence.nixosModules.impermanence
   ];
+
+  networking.hostName = "iolcus";
+  nixpkgs.system = "x86_64-linux";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -44,7 +45,7 @@ in
     ];
     font = "ter-powerline-v16n";
     colors =
-      with self.lib.colors "nord" "hex";
+      with lib.colors "nord" "hex";
       [
         primary.background
         normal.red
@@ -130,7 +131,6 @@ in
     lockMessage = "This system is locked";
   };
 
-  networking.hostName = "iolcus";
   networking.useNetworkd = true;
   networking.networkmanager.enable = true;
   networking.search = [ "wolcomm.net" ];
@@ -234,16 +234,6 @@ in
     ];
   };
 
-  system.systemBuilderCommands = /* bash */ ''
-    mkdir -p $out/source/inputs
-    ln -s ${self} $out/source/self
-    ${lib.concatStrings (
-      lib.mapAttrsToList (name: source: ''
-        ln -s ${source} $out/source/inputs/${name}
-      '') self.inputs
-    )}
-  '';
-
   nix = {
     settings = {
       trusted-users = [ "@wheel" ];
@@ -253,13 +243,6 @@ in
       ];
     };
     nixPath = [ "nixpkgs=/run/current-system/source/inputs/nixpkgs" ];
-    registry = lib.mapAttrs (name: flake: { inherit flake; }) self.inputs // {
-      system.to = {
-        type = "github";
-        owner = "benmaddison";
-        repo = "home-flake";
-      };
-    };
   };
   nixpkgs.config = {
     allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) unfreePkgs;

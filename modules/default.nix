@@ -1,5 +1,5 @@
-{ self }:
-
-{
-  users = self.lib.import ./users;
-}
+{ extraModules }:
+[
+  ./users
+]
+++ extraModules

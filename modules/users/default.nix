@@ -1,28 +1,36 @@
-{ self }: { config, options, lib, ... }:
+{
+  lib,
+  config,
+  ...
+}:
 
 let
   cfg = config.local.users;
 in
 {
-  imports = [ self.inputs.home-manager.nixosModules.home-manager ];
-
   options = {
     local.users = lib.mkOption {
-      type = with lib.types; attrsOf (submodule ({ name, ... }: {
-        options = {
-          name = lib.mkOption {
-            type = lib.types.str;
-            default = name;
-          };
-          hashedPassword = lib.mkOption {
-            type = lib.types.str;
-          };
-          homeManagerConfig = lib.mkOption {
-            type = with lib.types; nullOr path;
-            default = ./. + "/${name}";
-          };
-        };
-      }));
+      type =
+        with lib.types;
+        attrsOf (
+          submodule (
+            { name, ... }: {
+              options = {
+                name = lib.mkOption {
+                  type = lib.types.str;
+                  default = name;
+                };
+                hashedPassword = lib.mkOption {
+                  type = lib.types.str;
+                };
+                homeManagerConfig = lib.mkOption {
+                  type = with lib.types; nullOr path;
+                  default = ./. + "/${name}";
+                };
+              };
+            }
+          )
+        );
       default = { };
     };
   };
@@ -53,7 +61,7 @@ in
       users =
         let
           enabled = _: user: user.homeManagerConfig != null;
-          hmConfig = _: user: self.lib.import user.homeManagerConfig;
+          hmConfig = _: user: import user.homeManagerConfig;
         in
         lib.mapAttrs hmConfig (lib.filterAttrs enabled cfg);
     };

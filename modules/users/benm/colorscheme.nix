@@ -1,4 +1,4 @@
-{ self }: { config, lib, ... }:
+{ config, lib, ... }:
 
 let
   cfg = config.local.colorscheme;
@@ -20,8 +20,10 @@ in
     };
   };
 
-  config.local.colorscheme = lib.listToAttrs (map
-    (style: lib.nameValuePair style
-      (self.lib.colors cfg.theme style))
-    [ "hash" "hashHex" ]);
+  config.local.colorscheme = lib.listToAttrs (
+    map (style: lib.nameValuePair style (lib.colors cfg.theme style)) [
+      "hash"
+      "hashHex"
+    ]
+  );
 }

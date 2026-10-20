@@ -1,4 +1,9 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.slack;

@@ -1,4 +1,9 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.nsxiv;
@@ -30,12 +35,14 @@ in
               default = null;
             };
 
-            section = options: lib.mkOption {
-              type = lib.types.submodule {
-                inherit options;
+            section =
+              options:
+              lib.mkOption {
+                type = lib.types.submodule {
+                  inherit options;
+                };
+                default = { };
               };
-              default = { };
-            };
 
           in
           {
@@ -55,6 +62,6 @@ in
       "image/*" = "nsxiv.desktop";
     };
 
-    xresources.properties = self.lib.filterFlatten [ "Nsxiv" ] cfg.settings;
+    xresources.properties = lib.filterFlatten [ "Nsxiv" ] cfg.settings;
   };
 }

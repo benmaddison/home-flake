@@ -1,9 +1,7 @@
-{ self }:
 {
   config,
   pkgs,
   lib,
-  osConfig,
   ...
 }:
 
@@ -15,7 +13,7 @@ in
   home.homeDirectory = "/home/benm";
   home.stateVersion = "22.05";
 
-  imports = map (path: self.lib.import path) [
+  imports = [
     ./alacritty.nix
     ./azure.nix
     ./cachix.nix

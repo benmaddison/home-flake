@@ -1,7 +1,12 @@
-{ self }: { config, options, lib, ... }:
+{ config, lib, ... }:
 
 let
-  inherit (lib) mkEnableOption mkOption mkIf types;
+  inherit (lib)
+    mkEnableOption
+    mkOption
+    mkIf
+    types
+    ;
   cfg = config.local.persistence;
 in
 {

@@ -1,8 +1,12 @@
-{ self }: { config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.local.rofi;
-  inherit (pkgs.stdenv.hostPlatform) system;
 in
 {
   options.local.rofi = {
@@ -13,14 +17,13 @@ in
     programs.rofi = {
       enable = true;
       package = pkgs.rofi;
-      theme = "${self.packages.${system}.nord-rofi-theme}/nord.rasi";
+      theme = "${pkgs.nord-rofi-theme}/nord.rasi";
     };
 
     xsession.windowManager.i3.config.keybindings =
       let
         mod = config.xsession.windowManager.i3.config.modifier;
-        rofi-pulse-select =
-          type: "${pkgs.rofi-pulse-select}/bin/rofi-pulse-select ${type}";
+        rofi-pulse-select = type: "${pkgs.rofi-pulse-select}/bin/rofi-pulse-select ${type}";
       in
       {
         "${mod}+s" = "exec ${rofi-pulse-select "sink"}";
