@@ -1,5 +1,0 @@
-{ extraModules }:
-[
-  ./users
-]
-++ extraModules

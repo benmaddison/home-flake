@@ -19,7 +19,8 @@
     let
       lib = import ./lib { inherit (inputs.nixpkgs) lib; };
       overlay = import ./pkgs/overlay.nix { };
-      nixosModules = import ./modules {
+      nixosModules = import ./modules/nixos {
+        inherit lib;
         extraModules = [
           inputs.impermanence.nixosModules.impermanence
           inputs.home-manager.nixosModules.home-manager

@@ -50,6 +50,24 @@ lib.extend (
       )}
     '';
 
+    findModules =
+      let
+        inherit (final)
+          pipe
+          readDir
+          filterAttrs
+          hasSuffix
+          mapAttrsToList
+          ;
+        filterPredicate = name: type: type == "regular" && hasSuffix ".nix" name;
+      in
+      path:
+      pipe path [
+        readDir
+        (filterAttrs filterPredicate)
+        (mapAttrsToList (name: _: path + "/${name}"))
+      ];
+
     colors = import ./colors.nix;
   }
 )
