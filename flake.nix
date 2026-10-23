@@ -18,24 +18,21 @@
     { self, ... }@inputs:
     let
       lib = import ./lib { inherit (inputs.nixpkgs) lib; };
-      overlay = import ./pkgs/overlay.nix { };
+      overlays.default = import ./pkgs/overlay.nix { };
       nixosModules = import ./modules/nixos {
         inherit lib;
         extraModules = [
           inputs.impermanence.nixosModules.impermanence
           inputs.home-manager.nixosModules.home-manager
           ({ ... }: {
-            nixpkgs.overlays = [ overlay ];
+            nixpkgs.overlays = lib.attrValues overlays;
             system.systemBuilderCommands = lib.systemSourceLinksCommand inputs;
           })
         ];
       };
+      nixosConfigurations = lib.mkSystems ./systems { inherit nixosModules; };
     in
     {
-      inherit lib;
-      overlays.default = overlay;
-      nixosConfigurations = import ./systems {
-        inherit lib nixosModules;
-      };
+      inherit lib nixosConfigurations overlays;
     };
 }

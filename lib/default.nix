@@ -68,6 +68,28 @@ lib.extend (
         (mapAttrsToList (name: _: path + "/${name}"))
       ];
 
+    mkSystems =
+      path:
+      { nixosModules }:
+      let
+        inherit (final)
+          listToAttrs
+          nameValuePair
+          nixosSystem
+          findModules
+          ;
+        systemConfigurations = findModules path;
+        mkSystem =
+          systemConfiguration:
+          let
+            evalConfiguration = nixosSystem {
+              modules = nixosModules ++ [ systemConfiguration ];
+            };
+          in
+          nameValuePair evalConfiguration.config.networking.hostName evalConfiguration;
+      in
+      listToAttrs (map mkSystem systemConfigurations);
+
     colors = import ./colors.nix;
   }
 )
